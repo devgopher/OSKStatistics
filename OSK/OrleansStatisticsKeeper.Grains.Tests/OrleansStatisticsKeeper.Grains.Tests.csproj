@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OrleansStatisticsKeeper.Client\OrleansStatisticsKeeper.Client.csproj" />
     <ProjectReference Include="..\OrleansStatisticsKeeper.Grains\OrleansStatisticsKeeper.Grains.csproj" />
   </ItemGroup>
 

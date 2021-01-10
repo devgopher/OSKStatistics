@@ -18,15 +18,29 @@ namespace OrleansTestApplication
                 var clt = new ClientStartup();
                 using (var client = await clt.StartClientWithRetries())
                 {
-                    var statGrain = client.AddStatisticsGrain<Student>();
-                    statGrain.Put(new List<Student>()
+                    var rand = new Random(DateTime.Now.Millisecond);
+
+                    var addStatisticsGrain = client.AddStatisticsGrain<Student>();
+
+                    for (int i = 0; i < 10000; ++i)
                     {
-                        new Student()
+                        await addStatisticsGrain.Put(new List<Student>()
                         {
-                            Name = "Ivan", Surname = "Petrov", Birthdate = DateTime.UtcNow.AddYears(-20)
-                        }
-                    });
+                            new Student()
+                            {
+                                Name = "Ivan", Surname = "Petrov",
+                                Birthdate = DateTime.UtcNow.AddYears(-18 - rand.Next() % 15)
+                            }
+                        });
+                    }
+
+                    Console.WriteLine("Data was added... Getting statistics...");
+                    var getStatisticsGrain = client.GetStatisticsGrain<Student>();
+                    var stat = await getStatisticsGrain.Get(t => t.Birthdate.Date.Year == 2000);
+                    Console.WriteLine($"Data result : {stat.Count} students were born in 2000!");
                 }
+
+                Console.ReadKey();
                 return 0;
             }
             catch (Exception e)

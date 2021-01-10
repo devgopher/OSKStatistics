@@ -5,7 +5,9 @@ using OrleansStatisticsKeeper.Grains.Interfaces;
 using OrleansStatisticsKeeper.Grains.Tests.Models;
 using OrleansStatisticsKeeper.Grains.Utils;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
+using OrleansStatisticsKeeper.Client;
 using OrleansStatisticsKeeper.Models.Settings;
 
 namespace OrleansStatisticsKeeper.Grains.Tests
@@ -55,9 +57,9 @@ namespace OrleansStatisticsKeeper.Grains.Tests
         [TestCase("TEXT1")]
         public async Task PutStatistics(string text)
         {
-            var insertText = text + DateTime.UtcNow.ToString();
+            var insertText = text + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
             await _addStatisticsGrain.Put(new TestModel() {Text = insertText});
-            Assert.IsTrue( await _getStatisticsGrain.Any(x => x.Text == insertText));
+            Assert.IsTrue(await _getStatisticsGrain.Any(x => x.Text == insertText));
         }
     }
 }
