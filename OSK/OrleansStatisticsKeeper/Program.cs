@@ -69,6 +69,9 @@ namespace OrleansStatisticsKeeper
             var asmPaths = siloSettings.ModelsAssemblies?.SelectMany(x => Directory.GetFiles(basicDirectory, x, SearchOption.AllDirectories));
 
             var asms = new List<Assembly>();
+            if (asmPaths == null) 
+                return asms.ToArray();
+            
             foreach (var asmPath in asmPaths)
             {
                 try

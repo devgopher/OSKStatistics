@@ -21,9 +21,9 @@ namespace OrleansTestApplication
                     var rand = new Random(DateTime.Now.Millisecond);
 
                     // var addStatisticsGrain = client.AddStatisticsGrain<Student>();
-                    var addStatisticsGrainPool = new GrainsAddStatisticsPool<Student>(client, 10);
+                    var addStatisticsGrainPool = new GrainsAddStatisticsPool<Student>(client, 30);
 
-                    for (int i = 0; i < 10000; ++i)
+                    for (int i = 0; i < 200000; ++i)
                     {
                         await addStatisticsGrainPool.Put(new List<Student>()
                         {
