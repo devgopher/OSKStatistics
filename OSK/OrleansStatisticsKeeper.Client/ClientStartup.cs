@@ -48,7 +48,7 @@ namespace OrleansStatisticsKeeper.Client
             await innerClient.Connect(RetryFilter);
             Console.WriteLine("Client successfully connect to silo host");
 
-            return new StatisticsClient(innerClient, _oskSettings);
+            return new StatisticsClient(innerClient);
         }
 
         private async Task<bool> RetryFilter(Exception exception)
