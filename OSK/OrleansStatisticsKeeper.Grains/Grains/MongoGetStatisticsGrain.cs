@@ -21,7 +21,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
         public async Task<ICollection<T>> GetAll()
         {
             var collection = await _mongoUtils.GetCollection<T>();
-            return await collection.Where(x => true).ToListAsync();
+            return await collection.AsQueryable().ToListAsync();
         }
 
         public async Task<T> GetFirst()
