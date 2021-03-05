@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,7 @@ using Orleans.Hosting;
 using OrleansStatisticsKeeper.Grains.Grains;
 using OrleansStatisticsKeeper.Grains.Utils;
 using OrleansStatisticsKeeper.Models.Settings;
+using OrleansStatisticsKeeper.SiloHost.Utils;
 using Utils;
 
 namespace OrleansStatisticsKeeper
@@ -33,6 +35,9 @@ namespace OrleansStatisticsKeeper
             configuration.GetSection("OskSettings").Bind(oskSettings);
             configuration.GetSection("SiloSettings").Bind(siloSettings);
 
+            if (siloSettings.MaxCpuLoad < 100)
+                Task.Run(() => CpuOptimizer.Start(siloSettings.MaxCpuLoad, new CancellationToken()));
+
             return new HostBuilder()
                 .UseOrleans(builder =>
                 {
@@ -50,8 +55,7 @@ namespace OrleansStatisticsKeeper
                             options.ServiceId = oskSettings.ServiceId;
                         }))
                         .Configure((System.Action<EndpointOptions>)(options => options.AdvertisedIPAddress = IpUtils.IpAddress()))
-                        .ConfigureApplicationParts(parts => AddParts(parts, siloSettings)
-                            .WithReferences())
+                        .ConfigureApplicationParts(parts => AddParts(parts, siloSettings).WithReferences())
                         //.AddPerfCountersTelemetryConsumer()
                         .AddMemoryGrainStorage(name: "StatisticsGrainStorage");
                     //.AddGrainService<DataGrainService>()
@@ -92,7 +96,7 @@ namespace OrleansStatisticsKeeper
         private static IApplicationPartManagerWithAssemblies AddParts(IApplicationPartManager parts, SiloSettings siloSettings)
         {
             var results= parts
-                      .AddApplicationPart(typeof(MongoAddStatisticsGrain<>).Assembly)
+                      .AddApplicationPart(typeof(MongoManageStatisticsGrain<>).Assembly)
                       .AddApplicationPart(typeof(MongoGetStatisticsGrain<>).Assembly);
 
             var linkedAsms = GetLinkedAssemblies(siloSettings);

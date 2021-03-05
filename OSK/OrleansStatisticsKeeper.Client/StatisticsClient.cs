@@ -10,8 +10,8 @@ namespace OrleansStatisticsKeeper.Client
         private readonly IClusterClient _client;
         public StatisticsClient(IClusterClient client) => _client = client;
 
-        public IAddStatisticsGrain<T> AddStatisticsGrain<T>() where T : DataChunk 
-            => _client.GetGrain<IAddStatisticsGrain<T>>(Guid.NewGuid());
+        public IManageStatisticsGrain<T> AddStatisticsGrain<T>() where T : DataChunk 
+            => _client.GetGrain<IManageStatisticsGrain<T>>(Guid.NewGuid());
 
         public IGetStatisticsGrain<T> GetStatisticsGrain<T>() where T : DataChunk
             => _client.GetGrain<IGetStatisticsGrain<T>>(Guid.NewGuid());

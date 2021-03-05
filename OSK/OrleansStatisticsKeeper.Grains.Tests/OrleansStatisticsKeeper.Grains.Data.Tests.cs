@@ -14,7 +14,7 @@ namespace OrleansStatisticsKeeper.Grains.Tests
 {
     public class Tests
     {
-        private IAddStatisticsGrain<TestModel> _addStatisticsGrain;
+        private IManageStatisticsGrain<TestModel> _addStatisticsGrain;
         private IGetStatisticsGrain<TestModel> _getStatisticsGrain;
         private MongoUtils _mongoUtils;
         private OskSettings _oskSettings = new OskSettings();
@@ -29,7 +29,7 @@ namespace OrleansStatisticsKeeper.Grains.Tests
             configuration.GetSection("OskSettings").Bind(_oskSettings);
 
             _mongoUtils = new MongoUtils(_oskSettings);
-            _addStatisticsGrain = new MongoAddStatisticsGrain<TestModel>(_mongoUtils);
+            _addStatisticsGrain = new MongoManageStatisticsGrain<TestModel>(_mongoUtils);
             _getStatisticsGrain = new MongoGetStatisticsGrain<TestModel>(_mongoUtils);
 
             await FillData();

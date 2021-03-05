@@ -8,9 +8,9 @@ namespace OrleansStatisticsKeeper.Grains.Models
         public DataChunk()
         {
             Id = Guid.NewGuid();
-           SetDateTime(DateTime.UtcNow);
+            SetDateTime(DateTime.UtcNow);
         }
-        
+
         [Indexed]
         public Guid Id { get; set; }
         [Indexed]
