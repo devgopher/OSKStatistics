@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AsyncLogging;
 using EntityFrameworkCore.BootKit;
 using MongoDB.Driver;
 using Orleans;
@@ -15,29 +16,42 @@ namespace OrleansStatisticsKeeper.Grains.Grains
         where T : DataChunk
     {
         private readonly MongoUtils _mongoUtils;
+        private readonly IAsyncLogger _logger;
 
-        public MongoGetStatisticsGrain(MongoUtils mongoUtils) => _mongoUtils = mongoUtils;
+        public MongoGetStatisticsGrain(MongoUtils mongoUtils, IAsyncLogger logger)
+        {
+            _mongoUtils = mongoUtils;
+            _logger = logger;
+        }
 
         public async Task<ICollection<T>> GetAll()
         {
+            _logger.Info($"{this.GetType().Name}.{nameof(GetAll)}() started...");
+
             var collection = await _mongoUtils.GetCollection<T>();
             return await collection.AsQueryable().ToListAsync();
         }
 
         public async Task<T> GetFirst()
         {
+            _logger.Info($"{this.GetType().Name}.{nameof(GetFirst)}() started...");
+
             var collection = await _mongoUtils.GetCollection<T>();
             return collection.FirstOrDefault();
         }
 
         public async Task<T> GetLast()
         {
+            _logger.Info($"{this.GetType().Name}.{nameof(GetLast)}() started...");
+
             var collection = await _mongoUtils.GetCollection<T>();
             return collection.AsQueryable().TakeLast(1).FirstOrDefault();
         }
 
         public async Task<bool> Any()
         {
+            _logger.Info($"{this.GetType().Name}.{nameof(Any)}() started...");
+
             var collection = await _mongoUtils.GetCollection<T>();
             return collection.AsQueryable().Any();
         }

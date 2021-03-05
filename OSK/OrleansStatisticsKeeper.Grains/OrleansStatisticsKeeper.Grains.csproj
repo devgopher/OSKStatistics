@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AsyncLogging\AsyncLogging.csproj" />
     <ProjectReference Include="..\OrleansStatisticsKeeper.Models\OrleansStatisticsKeeper.Models.csproj" />
   </ItemGroup>
 
