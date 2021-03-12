@@ -57,7 +57,9 @@ namespace OrleansStatisticsKeeper
                         .Configure((System.Action<EndpointOptions>)(options => options.AdvertisedIPAddress = IpUtils.IpAddress()))
                         .ConfigureApplicationParts(parts => AddParts(parts, siloSettings).WithReferences())
                         //.AddPerfCountersTelemetryConsumer()
-                        .AddMemoryGrainStorage(name: "StatisticsGrainStorage");
+                        .AddMemoryGrainStorage(name: "StatisticsGrainStorage")
+                        .AddSimpleMessageStreamProvider("OSKProvider", c => c.OptimizeForImmutableData = true);
+                    
                     //.AddGrainService<DataGrainService>()
                 })
                 .ConfigureLogging(builder => builder.AddConsole())

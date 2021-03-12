@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using OrleansStatisticsKeeper.Client;
+﻿using OrleansStatisticsKeeper.Client;
 using OrleansStatisticsKeeper.Grains.Interfaces;
 using OrleansStatisticsKeeper.Grains.Models;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
 {
