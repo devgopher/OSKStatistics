@@ -9,6 +9,8 @@ using System.Globalization;
 using System.Threading.Tasks;
 using OrleansStatisticsKeeper.Client;
 using OrleansStatisticsKeeper.Models.Settings;
+using AsyncLogging;
+using OrleansStatisticsKeeper.Grains.Tests.TestClasses;
 
 namespace OrleansStatisticsKeeper.Grains.Tests
 {
@@ -16,6 +18,7 @@ namespace OrleansStatisticsKeeper.Grains.Tests
     {
         private IManageStatisticsGrain<TestModel> _addStatisticsGrain;
         private IGetStatisticsGrain<TestModel> _getStatisticsGrain;
+        private IExecutiveGrain _executiveGrain;
         private MongoUtils _mongoUtils;
         private OskSettings _oskSettings = new OskSettings();
 
@@ -30,7 +33,8 @@ namespace OrleansStatisticsKeeper.Grains.Tests
 
             _mongoUtils = new MongoUtils(_oskSettings);
             _addStatisticsGrain = new MongoManageStatisticsGrain<TestModel>(_mongoUtils);
-            _getStatisticsGrain = new MongoGetStatisticsGrain<TestModel>(_mongoUtils);
+            _getStatisticsGrain = new MongoGetStatisticsGrain<TestModel>(_mongoUtils, new NLogLogger());
+            _executiveGrain = new GenericExecutiveGrain();
 
             await FillData();
         }
@@ -60,6 +64,25 @@ namespace OrleansStatisticsKeeper.Grains.Tests
             var insertText = text + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
             await _addStatisticsGrain.Put(new TestModel() {Text = insertText});
             Assert.IsTrue(await _getStatisticsGrain.Any(x => x.Text == insertText));
+        }
+
+        [Test]
+        [TestCase("TEXT1")]
+        public async Task ExecutiveGrainsTest(string text)
+        {
+            var insertText = text + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
+            var ret = await _executiveGrain.Execute((t) => t, text);
+            Assert.AreEqual(ret, text);
+        }
+
+        [Test]
+        [TestCase(5, 3)]
+        public async Task ExecutiveGrainsWithClassTest(int a, int b)
+        {
+            var tc = new TestExecutionContext();
+            
+            var ret = await _executiveGrain.Execute<int, int, double>((t1, t2) => tc.Test(t1, t2), a, b);
+            Assert.AreEqual(ret, tc.Test(a,b));
         }
     }
 }
