@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using AsyncLogging;
 using NLog;
 using Utils;
+using Orleans.Hosting;
 
 namespace OrleansStatisticsKeeper.Client
 {
@@ -45,6 +46,7 @@ namespace OrleansStatisticsKeeper.Client
                     options.ServiceId = _oskSettings.ServiceId;
                 })
                 .ConfigureLogging(logging => logging.AddConsole())
+                .AddSimpleMessageStreamProvider("OSKProvider")
                 .Build();
 
             await innerClient.Connect(RetryFilter);

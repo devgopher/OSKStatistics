@@ -10,6 +10,8 @@ namespace AsyncLogging
         private readonly Logger _logger;
         public NLogLogger(Logger logger) => _logger = logger;
 
+        public NLogLogger() => _logger = LogManager.GetCurrentClassLogger();
+
         protected override void Log(IAsyncLogger.LogLevel level, string message, params object[] objs)
         {
             switch (level)

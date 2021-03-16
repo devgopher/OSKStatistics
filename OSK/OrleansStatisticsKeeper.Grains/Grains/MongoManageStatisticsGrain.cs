@@ -67,7 +67,6 @@ namespace OrleansStatisticsKeeper.Grains.Grains
             try
             {
                 var collection = await _mongoUtils.GetCollection<T>();
-                var toDelete = collection.AsQueryable().ToEnumerable().Where(func);
                 var delResult = await collection.DeleteManyAsync(f => func(f));
 
                 return delResult.DeletedCount;
