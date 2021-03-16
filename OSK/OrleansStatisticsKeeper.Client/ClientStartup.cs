@@ -10,6 +10,8 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AsyncLogging;
+using NLog;
+using Utils;
 
 namespace OrleansStatisticsKeeper.Client
 {
@@ -33,7 +35,7 @@ namespace OrleansStatisticsKeeper.Client
         {
             _attempt = 0;
             _siloSettings.SiloAddresses ??= new List<string>();
-           // _siloSettings.SiloAddresses.Add(IpUtils.IpAddress().ToString());
+            _siloSettings.SiloAddresses.Add(IpUtils.IpAddress().ToString());
 
             var innerClient = new ClientBuilder()
                 .UseStaticClustering(_siloSettings.SiloAddresses.Select(a => new IPEndPoint(IPAddress.Parse(a), _siloSettings.SiloPort)).ToArray())
@@ -48,7 +50,7 @@ namespace OrleansStatisticsKeeper.Client
             await innerClient.Connect(RetryFilter);
             Console.WriteLine("Client successfully connect to silo host");
 
-            return new StatisticsClient(innerClient, new NLogLogger());
+            return new StatisticsClient(innerClient, new NLogLogger(LogManager.GetCurrentClassLogger()));
         }
 
         private async Task<bool> RetryFilter(Exception exception)

@@ -18,9 +18,9 @@ namespace OrleansTestApplication
         {
             try
             {
-#if DEBUG
-                Thread.Sleep(10000);
-#endif
+//#if DEBUG
+//                Thread.Sleep(10000);
+//#endif
                 var clt = new ClientStartup();
                 using (var client = await clt.StartClientWithRetries())
                 {
