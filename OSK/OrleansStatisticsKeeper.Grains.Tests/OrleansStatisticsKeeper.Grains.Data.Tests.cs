@@ -11,6 +11,7 @@ using OrleansStatisticsKeeper.Client;
 using OrleansStatisticsKeeper.Models.Settings;
 using AsyncLogging;
 using OrleansStatisticsKeeper.Grains.Tests.TestClasses;
+using OrleansStatisticsKeeper.Grains.ClientGrainsPool;
 
 namespace OrleansStatisticsKeeper.Grains.Tests
 {
@@ -18,6 +19,7 @@ namespace OrleansStatisticsKeeper.Grains.Tests
     {
         private IManageStatisticsGrain<TestModel> _addStatisticsGrain;
         private IGetStatisticsGrain<TestModel> _getStatisticsGrain;
+        private GrainsExecutivePool _grainsExecutivePool;
         private IExecutiveGrain _executiveGrain;
         private MongoUtils _mongoUtils;
         private OskSettings _oskSettings = new OskSettings();
@@ -35,7 +37,9 @@ namespace OrleansStatisticsKeeper.Grains.Tests
             _addStatisticsGrain = new MongoManageStatisticsGrain<TestModel>(_mongoUtils);
             _getStatisticsGrain = new MongoGetStatisticsGrain<TestModel>(_mongoUtils, new NLogLogger());
             _executiveGrain = new GenericExecutiveGrain();
-
+            var clt = new ClientStartup();
+            var client = await clt.StartClientWithRetries();
+            _grainsExecutivePool = new GrainsExecutivePool(client, 10);
             await FillData();
         }
 
@@ -67,22 +71,40 @@ namespace OrleansStatisticsKeeper.Grains.Tests
         }
 
         [Test]
-        [TestCase("TEXT1")]
-        public async Task ExecutiveGrainsTest(string text)
+        public async Task LoadAssemblyTest()
         {
             var insertText = text + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
-            var ret = await _executiveGrain.Execute((t) => t, text);
-            Assert.AreEqual(ret, text);
+            await _addStatisticsGrain.Put(new TestModel() { Text = insertText });
+            Assert.IsTrue(await _getStatisticsGrain.Any(x => x.Text == insertText));
         }
 
-        [Test]
-        [TestCase(5, 3)]
-        public async Task ExecutiveGrainsWithClassTest(int a, int b)
-        {
-            var tc = new TestExecutionContext();
-            
-            var ret = await _executiveGrain.Execute<int, int, double>((t1, t2) => tc.Test(t1, t2), a, b);
-            Assert.AreEqual(ret, tc.Test(a,b));
-        }
+        //[Test]
+        //[TestCase("TEXT1")]
+        //public async Task ExecutiveGrainsTest(string text)
+        //{
+        //    var insertText = text + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
+        //    var ret = await _executiveGrain.Execute<string>((t) => t, text);
+        //    Assert.AreEqual(ret, text);
+        //}
+
+        //[Test]
+        //[TestCase(5, 3)]
+        //public async Task ExecutiveGrainsWithClassTest(int a, int b)
+        //{
+        //    var tc = new TestExecutionContext();
+
+        //    var ret = await _executiveGrain.Execute<int, int, double>((t1, t2) => tc.Test(t1, t2), a, b);
+        //    Assert.AreEqual(ret, tc.Test(a,b));
+        //}
+
+        //[Test]
+        //[TestCase(5, 3)]
+        //public async Task ExecutiveGrainsWithClassPoolTest(int a, int b)
+        //{
+        //    var tc = new TestExecutionContext();
+
+        //    var ret = await _grainsExecutivePool.Execute<int, int, double>((t1, t2) => tc.Test(t1, t2), a, b);
+        //    Assert.AreEqual(ret, tc.Test(a, b));
+        //}
     }
 }

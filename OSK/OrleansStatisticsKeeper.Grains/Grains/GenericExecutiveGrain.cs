@@ -1,23 +1,80 @@
-﻿using OrleansStatisticsKeeper.Grains.Interfaces;
+﻿using Orleans;
+using OrleansStatisticsKeeper.Grains.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace OrleansStatisticsKeeper.Grains.Grains
 {
-    public class GenericExecutiveGrain : IExecutiveGrain
+    public class GenericExecutiveGrain : Grain, IExecutiveGrain
     {
-        public async Task<TOUT> Execute<TIN1, TOUT>(Func<TIN1, TOUT> func, TIN1 in1)
-            => func(in1);
+        public bool IsLoaded { get; private set; }
+        private Assembly assembly;
 
-        public async Task<TOUT> Execute<TIN1, TIN2, TOUT>(Func<TIN1, TIN2, TOUT> func, TIN1 in1, TIN2 in2)
-            => func(in1, in2);
+        public GenericExecutiveGrain()
+        {
+        }
 
-        public async Task<TOUT> Execute<TIN1, TIN2, TIN3, TOUT>(Func<TIN1, TIN2, TIN3, TOUT> func, TIN1 in1, TIN2 in2, TIN3 in3)
-            => func(in1, in2, in3);
+        public void LoadAssembly(string asmPath)
+        {
+            try
+            {
+                if (asmPath == default)
+                {
+                    IsLoaded = false;
+                    return;
+                }
 
-        public async Task<TOUT> Execute<TIN1, TIN2, TIN3, TIN4, TOUT>(Func<TIN1, TIN2, TIN3, TIN4, TOUT> func, TIN1 in1, TIN2 in2, TIN3 in3, TIN4 in4)
-            => func(in1, in2, in3, in4);
+                assembly = Assembly.ReflectionOnlyLoadFrom(asmPath);
+                IsLoaded = true;
+            }
+            catch (Exception)
+            {
+                IsLoaded = false;
+            }
+        }
+
+        public void LoadAssembly(byte[] asmBytes)
+        {
+            try
+            {
+                if (asmBytes == default || !asmBytes.Any())
+                {
+                    IsLoaded = false;
+                    return;
+                }
+
+                assembly = Assembly.ReflectionOnlyLoad(asmBytes);
+                IsLoaded = true;
+            } catch (Exception)
+            {
+                IsLoaded = false;
+            }
+        }
+
+        public async Task<TOUT> Execute<TOUT>(string className, string funcName,
+            params object[] args)
+        {
+            if (!IsLoaded)
+                return default;
+            var type = assembly.DefinedTypes.FirstOrDefault(t => t.Name == className);
+
+            if (type == default)
+                return default;
+
+            MethodInfo method;
+            if (args == null)
+                method = type.GetMethods().FirstOrDefault(m => m.Name == funcName && m.GetParameters().Length == 0);
+            else
+                method = type.GetMethods().FirstOrDefault(m => m.Name == funcName && m.GetParameters().Length == args.Length);
+
+
+            var obj = Activator.CreateInstance(type);
+
+            var ret = method.Invoke(obj, args);
+
+            return (TOUT)ret;
+        }
     }
 }
