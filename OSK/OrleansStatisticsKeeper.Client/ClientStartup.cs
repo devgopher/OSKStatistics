@@ -13,6 +13,9 @@ using AsyncLogging;
 using NLog;
 using Utils;
 using Orleans.Hosting;
+using System.Net.Sockets;
+using Orleans.Networking.Shared;
+using Orleans.Runtime.Messaging;
 
 namespace OrleansStatisticsKeeper.Client
 {
@@ -57,7 +60,9 @@ namespace OrleansStatisticsKeeper.Client
 
         private async Task<bool> RetryFilter(Exception exception)
         {
-            if (exception.GetType() != typeof(SiloUnavailableException))
+            if (exception.GetType() != typeof(SiloUnavailableException) && 
+                exception.GetType() != typeof(SocketConnectionException) &&
+                exception.GetType() != typeof(ConnectionFailedException))
             {
                 Console.WriteLine($"Cluster client failed to connect to cluster with unexpected error.  Exception: {exception}");
                 return false;

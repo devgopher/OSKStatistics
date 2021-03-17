@@ -1,7 +1,10 @@
 ﻿using Orleans;
 using OrleansStatisticsKeeper.Grains.Exceptions;
 using OrleansStatisticsKeeper.Grains.Interfaces;
+using OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -15,12 +18,11 @@ namespace OrleansStatisticsKeeper.Grains.Grains
         public async Task SetIsLoaded(bool val) => isLoaded = val;
 
         private Assembly assembly;
+        private IAssemblyCache _assemblyCache;
 
-        public GenericExecutiveGrain()
-        {
-        }
+        public GenericExecutiveGrain(IAssemblyCache assemblyCache) => _assemblyCache = assemblyCache;
 
-        public async Task LoadAssembly(string asmPath)
+        public async Task LoadAssembly(string assemblyFullName, FileVersionInfo version, string asmPath)
         {
             try
             {
@@ -30,7 +32,14 @@ namespace OrleansStatisticsKeeper.Grains.Grains
                     return;
                 }
 
-                assembly = Assembly.LoadFrom(asmPath);
+                if (!_assemblyCache.Exists(assemblyFullName))
+                {
+                    assembly = Assembly.LoadFrom(asmPath);
+                    _assemblyCache.Set(assembly);
+                }
+                else
+                    assembly = _assemblyCache.Get(assemblyFullName);
+
                 await SetIsLoaded(true);
             }
             catch (Exception ex)
@@ -39,7 +48,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
             }
         }
 
-        public async Task LoadAssembly(byte[] asmBytes)
+        public async Task LoadAssembly(string assemblyFullName, FileVersionInfo version, byte[] asmBytes)
         {
             try
             {
@@ -49,8 +58,15 @@ namespace OrleansStatisticsKeeper.Grains.Grains
                     return;
                 }
 
-                assembly = Assembly.Load(asmBytes);
+                if (!_assemblyCache.Exists(assemblyFullName))
+                {
+                    assembly = Assembly.Load(asmBytes);
+                    _assemblyCache.Set(assembly);
+                }
+                else
+                    assembly = _assemblyCache.Get(assemblyFullName);
                 await SetIsLoaded(true);
+
             } catch (Exception ex)
             {
                 await SetIsLoaded(false);

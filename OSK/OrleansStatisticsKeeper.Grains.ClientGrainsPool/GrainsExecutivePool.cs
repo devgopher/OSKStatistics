@@ -10,6 +10,9 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using System.Diagnostics;
+using Utils.Client;
+using System.Reflection;
 
 namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
 {
@@ -27,20 +30,39 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         public async Task<TOUT> Execute<TOUT>(string className, string funcName, params object[] args) 
             => await (await GetGrain()).Execute<TOUT>(className, funcName, args);
 
-        public async Task LoadAssembly(string asmPath)
+        public async Task LoadAssembly(Assembly assembly)
+        {
+            var asmBytes = AssemblyUtils.GetAssemblyBinary(assembly);
+            var asmVersion = AssemblyUtils.GetAssemblyVersion(assembly);
+            var asmFullname = assembly.FullName;
+
+            await LoadAssembly(asmFullname, asmVersion, asmBytes);
+        }
+
+        public async Task LoadAssembly(Type targetType)
+        {
+            var asmBinary = AssemblyUtils.GetAssemblyBinary(targetType);
+            var asmVersion = AssemblyUtils.GetAssemblyVersion(targetType);
+            var asmFullname = AssemblyUtils.GetAssemblyName(targetType);
+            var asmBytes = AssemblyUtils.GetAssemblyBinary(targetType);
+
+            await LoadAssembly(asmFullname, asmVersion, asmBytes);
+        }
+
+        public async Task LoadAssembly(string assemblyFullName, FileVersionInfo version, string asmPath)
         {
             var tasks = new List<Task>(_grains.Count);
             foreach (var grain in _grains)
-                tasks.Add(grain.LoadAssembly(asmPath));
+                tasks.Add(grain.LoadAssembly(assemblyFullName, version, asmPath));
 
             Task.WaitAll(tasks.ToArray());
         }
 
-        public async Task LoadAssembly(byte[] asmBytes)
+        public async Task LoadAssembly(string assemblyFullName, FileVersionInfo version, byte[] asmBytes)
         {
             var tasks = new List<Task>(_grains.Count);
             foreach (var grain in _grains)
-                tasks.Add(grain.LoadAssembly(asmBytes));
+                tasks.Add(grain.LoadAssembly(assemblyFullName, version, asmBytes));
 
             Task.WaitAll(tasks.ToArray());
         }

@@ -13,6 +13,8 @@ using AsyncLogging;
 using OrleansStatisticsKeeper.Grains.Tests.TestClasses;
 using OrleansStatisticsKeeper.Grains.ClientGrainsPool;
 using System.IO;
+using OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies;
+using Utils.Client;
 
 namespace OrleansStatisticsKeeper.Grains.Tests
 {
@@ -37,7 +39,7 @@ namespace OrleansStatisticsKeeper.Grains.Tests
             _mongoUtils = new MongoUtils(_oskSettings);
             _addStatisticsGrain = new MongoManageStatisticsGrain<TestModel>(_mongoUtils);
             _getStatisticsGrain = new MongoGetStatisticsGrain<TestModel>(_mongoUtils, new NLogLogger());
-            _executiveGrain = new GenericExecutiveGrain();
+            _executiveGrain = new GenericExecutiveGrain(new MemoryAssemblyCache());
             //var clt = new ClientStartup();
             //var client = await clt.StartClientWithRetries();
             //_grainsExecutivePool = new GrainsExecutivePool(client, 10);
@@ -76,7 +78,7 @@ namespace OrleansStatisticsKeeper.Grains.Tests
         public async Task ExecuteMethodFromAssemblyTest(int a)
         {
             var asmPath = Path.Combine(Directory.GetCurrentDirectory(), "TestAssembly.dll");
-            await _executiveGrain.LoadAssembly(asmPath);
+            await _executiveGrain.LoadAssembly(asmPath, AssemblyUtils.GetAssemblyVersion(asmPath), asmPath);
             var ret = await _executiveGrain.Execute<double>(nameof(TestAssembly.TestClass), nameof(TestAssembly.TestClass.Pow2), a);
             Assert.AreEqual(ret, TestAssembly.TestStaticClass.Pow2(a));
         }
@@ -86,8 +88,10 @@ namespace OrleansStatisticsKeeper.Grains.Tests
         public async Task ExecuteStaticMethodFromAssemblyTest(int a)
         {
             var asmPath = Path.Combine(Directory.GetCurrentDirectory(), "TestAssembly.dll");
-            await _executiveGrain.LoadAssembly(asmPath);
-            var ret = await _executiveGrain.Execute<double>(nameof(TestAssembly.TestStaticClass), nameof(TestAssembly.TestStaticClass.Pow2), a);
+            await _executiveGrain.LoadAssembly(AssemblyUtils.GetAssemblyName(asmPath),
+                AssemblyUtils.GetAssemblyVersion(asmPath), asmPath);
+            var ret = await _executiveGrain.Execute<double>(nameof(TestAssembly.TestStaticClass), 
+                nameof(TestAssembly.TestStaticClass.Pow2), a);
             Assert.AreEqual(ret, TestAssembly.TestStaticClass.Pow2(a));
         }
 

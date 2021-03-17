@@ -14,6 +14,7 @@ using Orleans.ApplicationParts;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using OrleansStatisticsKeeper.Grains.Grains;
+using OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies;
 using OrleansStatisticsKeeper.Grains.Utils;
 using OrleansStatisticsKeeper.Models.Settings;
 using OrleansStatisticsKeeper.SiloHost.Utils;
@@ -47,6 +48,7 @@ namespace OrleansStatisticsKeeper
                             services.AddSingleton<MongoUtils>();
                             services.AddSingleton(oskSettings);
                             services.AddSingleton(siloSettings);
+                            services.AddSingleton<IAssemblyCache, MemoryAssemblyCache>();
                         })
                         .Configure((System.Action<SchedulingOptions>)(options => options.AllowCallChainReentrancy = false))
                         .Configure((System.Action<ClusterOptions>)(options =>
