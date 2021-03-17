@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\OrleansStatisticsKeeper.Client\OrleansStatisticsKeeper.Client.csproj" />
     <ProjectReference Include="..\OrleansStatisticsKeeper.Grains.ClientGrainsPool\OrleansStatisticsKeeper.Grains.ClientGrainsPool.csproj" />
+    <ProjectReference Include="..\RemoteTestClass\RemoteTestClass.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />

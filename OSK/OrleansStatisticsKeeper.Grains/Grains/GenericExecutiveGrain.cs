@@ -1,4 +1,5 @@
 ﻿using Orleans;
+using OrleansStatisticsKeeper.Grains.Exceptions;
 using OrleansStatisticsKeeper.Grains.Interfaces;
 using System;
 using System.Linq;
@@ -9,69 +10,76 @@ namespace OrleansStatisticsKeeper.Grains.Grains
 {
     public class GenericExecutiveGrain : Grain, IExecutiveGrain
     {
-        public bool IsLoaded { get; private set; }
+        private bool isLoaded;
+        public async Task<bool> GetIsLoaded() => isLoaded;
+        public async Task SetIsLoaded(bool val) => isLoaded = val;
+
         private Assembly assembly;
 
         public GenericExecutiveGrain()
         {
         }
 
-        public void LoadAssembly(string asmPath)
+        public async Task LoadAssembly(string asmPath)
         {
             try
             {
                 if (asmPath == default)
                 {
-                    IsLoaded = false;
+                    await SetIsLoaded(false);
                     return;
                 }
 
-                assembly = Assembly.ReflectionOnlyLoadFrom(asmPath);
-                IsLoaded = true;
+                assembly = Assembly.LoadFrom(asmPath);
+                await SetIsLoaded(true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                IsLoaded = false;
+                await SetIsLoaded(false);
             }
         }
 
-        public void LoadAssembly(byte[] asmBytes)
+        public async Task LoadAssembly(byte[] asmBytes)
         {
             try
             {
                 if (asmBytes == default || !asmBytes.Any())
                 {
-                    IsLoaded = false;
+                    await SetIsLoaded(false);
                     return;
                 }
 
-                assembly = Assembly.ReflectionOnlyLoad(asmBytes);
-                IsLoaded = true;
-            } catch (Exception)
+                assembly = Assembly.Load(asmBytes);
+                await SetIsLoaded(true);
+            } catch (Exception ex)
             {
-                IsLoaded = false;
+                await SetIsLoaded(false);
             }
         }
 
         public async Task<TOUT> Execute<TOUT>(string className, string funcName,
             params object[] args)
         {
-            if (!IsLoaded)
-                return default;
+            if (!await GetIsLoaded())
+                throw new GrainException($"Nothing to execute!");
             var type = assembly.DefinedTypes.FirstOrDefault(t => t.Name == className);
 
             if (type == default)
                 return default;
 
             MethodInfo method;
-            if (args == null)
-                method = type.GetMethods().FirstOrDefault(m => m.Name == funcName && m.GetParameters().Length == 0);
+            if (args == default)
+                method = type.GetDeclaredMethods(funcName).FirstOrDefault(m => m.GetParameters().Length == 0);
             else
-                method = type.GetMethods().FirstOrDefault(m => m.Name == funcName && m.GetParameters().Length == args.Length);
+                method = type.GetDeclaredMethods(funcName).FirstOrDefault(m => m.GetParameters().Length == args.Length);
 
+            if (method == default)
+                throw new GrainException($"Can't find a method with name {funcName}!");
+
+            if (method.IsStatic)
+                return (TOUT)method.Invoke(null, args);
 
             var obj = Activator.CreateInstance(type);
-
             var ret = method.Invoke(obj, args);
 
             return (TOUT)ret;

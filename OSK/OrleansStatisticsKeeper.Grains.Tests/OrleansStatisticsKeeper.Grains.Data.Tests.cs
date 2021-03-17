@@ -12,6 +12,7 @@ using OrleansStatisticsKeeper.Models.Settings;
 using AsyncLogging;
 using OrleansStatisticsKeeper.Grains.Tests.TestClasses;
 using OrleansStatisticsKeeper.Grains.ClientGrainsPool;
+using System.IO;
 
 namespace OrleansStatisticsKeeper.Grains.Tests
 {
@@ -37,9 +38,9 @@ namespace OrleansStatisticsKeeper.Grains.Tests
             _addStatisticsGrain = new MongoManageStatisticsGrain<TestModel>(_mongoUtils);
             _getStatisticsGrain = new MongoGetStatisticsGrain<TestModel>(_mongoUtils, new NLogLogger());
             _executiveGrain = new GenericExecutiveGrain();
-            var clt = new ClientStartup();
-            var client = await clt.StartClientWithRetries();
-            _grainsExecutivePool = new GrainsExecutivePool(client, 10);
+            //var clt = new ClientStartup();
+            //var client = await clt.StartClientWithRetries();
+            //_grainsExecutivePool = new GrainsExecutivePool(client, 10);
             await FillData();
         }
 
@@ -71,11 +72,23 @@ namespace OrleansStatisticsKeeper.Grains.Tests
         }
 
         [Test]
-        public async Task LoadAssemblyTest()
+        [TestCase(102)]
+        public async Task ExecuteMethodFromAssemblyTest(int a)
         {
-            var insertText = text + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
-            await _addStatisticsGrain.Put(new TestModel() { Text = insertText });
-            Assert.IsTrue(await _getStatisticsGrain.Any(x => x.Text == insertText));
+            var asmPath = Path.Combine(Directory.GetCurrentDirectory(), "TestAssembly.dll");
+            await _executiveGrain.LoadAssembly(asmPath);
+            var ret = await _executiveGrain.Execute<double>(nameof(TestAssembly.TestClass), nameof(TestAssembly.TestClass.Pow2), a);
+            Assert.AreEqual(ret, TestAssembly.TestStaticClass.Pow2(a));
+        }
+
+        [Test]
+        [TestCase(5)]
+        public async Task ExecuteStaticMethodFromAssemblyTest(int a)
+        {
+            var asmPath = Path.Combine(Directory.GetCurrentDirectory(), "TestAssembly.dll");
+            await _executiveGrain.LoadAssembly(asmPath);
+            var ret = await _executiveGrain.Execute<double>(nameof(TestAssembly.TestStaticClass), nameof(TestAssembly.TestStaticClass.Pow2), a);
+            Assert.AreEqual(ret, TestAssembly.TestStaticClass.Pow2(a));
         }
 
         //[Test]

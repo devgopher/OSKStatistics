@@ -4,6 +4,7 @@ using OrleansStatisticsKeeper.Client;
 using OrleansStatisticsKeeper.Grains.Interfaces;
 using OrleansStatisticsKeeper.Grains.Models;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -13,69 +14,44 @@ using System.Xml.Serialization;
 namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
 {
     [Serializable]
-    public class GrainsExecutivePool : GrainsPool<IExecutiveGrain>
+    public class GrainsExecutivePool : GrainsPool<IExecutiveGrain>, IExecutiveGrain
     {
-        private readonly SerializerConfig serializerConfig = new SerializerConfig();
-        private readonly CerasSerializer _ceras = new CerasSerializer();
-
         public GrainsExecutivePool(StatisticsClient client, int poolSize) : base(client, poolSize)
         {
-            serializerConfig.Advanced.DelegateSerialization = DelegateSerializationFlags.AllowInstance;
-            _ceras = new CerasSerializer(serializerConfig);
         }
 
-        public Task<TOUT> Execute<TOUT>(Func<TOUT> func)
-        {
-            using (var ms = new MemoryStream())
-            {
-                var ser = _ceras.Serialize(func);
-                var ret = GetGrain().Execute<TOUT>(ser);
-                return ret;
-            }
-        }
-        public Task<TOUT> Execute<TIN1, TOUT>(Func<TIN1, TOUT> func, TIN1 in1)
-        {
-            using (var ms = new MemoryStream())
-            {
-                var ser = _ceras.Serialize(func);
-                Console.WriteLine($"ser.Length: {ser.Length}");
+        public async Task<bool> GetIsLoaded() => _grains.Any(g => g.GetIsLoaded().Result);
+        public async Task SetIsLoaded(bool val) =>
+            throw new NotImplementedException($"{nameof(SetIsLoaded)} won't be implemented for {nameof(GrainsExecutivePool)}!");
 
-                var ret = GetGrain().Execute<TOUT>(ser, in1);
-                return ret;
-            }
+        public async Task<TOUT> Execute<TOUT>(string className, string funcName, params object[] args) 
+            => await (await GetGrain()).Execute<TOUT>(className, funcName, args);
+
+        public async Task LoadAssembly(string asmPath)
+        {
+            var tasks = new List<Task>(_grains.Count);
+            foreach (var grain in _grains)
+                tasks.Add(grain.LoadAssembly(asmPath));
+
+            Task.WaitAll(tasks.ToArray());
         }
 
-        public Task<TOUT> Execute<TIN1, TIN2, TOUT>(Func<TIN1, TIN2, TOUT> func, TIN1 in1, TIN2 in2)
-            where TOUT : class
+        public async Task LoadAssembly(byte[] asmBytes)
         {
-            using (var ms = new MemoryStream())
-            {
-                var ser = _ceras.Serialize(func);
-                var ret = GetGrain().Execute<TOUT>(ser, in1, in2);
-                return ret;
-            }
+            var tasks = new List<Task>(_grains.Count);
+            foreach (var grain in _grains)
+                tasks.Add(grain.LoadAssembly(asmBytes));
+
+            Task.WaitAll(tasks.ToArray());
         }
 
-        public Task<TOUT> Execute<TIN1, TIN2, TIN3, TOUT>(Func<TIN1, TIN2, TIN3, TOUT> func, TIN1 in1, TIN2 in2, TIN3 in3)
-            where TOUT : class
+        protected override async Task<int> GetGrainNumber()
         {
-            using (var ms = new MemoryStream())
-            {
-                var ser = _ceras.Serialize(func);
-                var ret = GetGrain().Execute<TOUT>(ser, in1, in2, in3);
-                return ret;
-            }
-        }
+            int baseNumber = await base.GetGrainNumber();
+            while (!(await _grains[baseNumber].GetIsLoaded()))
+                baseNumber = await base.GetGrainNumber();
 
-        public Task<TOUT> Execute<TIN1, TIN2, TIN3, TIN4, TOUT>(Func<TIN1, TIN2, TIN3, TIN4, TOUT> func, TIN1 in1, TIN2 in2, TIN3 in3, TIN4 in4)
-            where TOUT : class
-        {
-            using (var ms = new MemoryStream())
-            {
-                var ser = _ceras.Serialize(func);
-                var ret = GetGrain().Execute<TOUT>(ser, in1, in2, in3, in4);
-                return ret;
-            }
+            return baseNumber;
         }
     }
 }

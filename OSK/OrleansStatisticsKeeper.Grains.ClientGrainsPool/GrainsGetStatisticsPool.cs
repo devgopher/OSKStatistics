@@ -15,15 +15,15 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         }
 
         public async Task<ICollection<T>> GetAll()
-            => await GetGrain().GetAll();
+            => await (await GetGrain()).GetAll();
 
         public async Task<T> GetFirst()
-            => await GetGrain().GetFirst();
+            => await (await GetGrain()).GetFirst();
 
         public async Task<T> GetLast()
-            => await GetGrain().GetLast();
+            => await (await GetGrain()).GetLast();
 
         public async Task<bool> Any()
-            => await GetGrain().Any();
+            => await (await GetGrain()).Any();
     }
 }
