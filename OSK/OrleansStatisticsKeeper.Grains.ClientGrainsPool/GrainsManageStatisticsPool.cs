@@ -31,6 +31,5 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
 
         public async Task<long> Clean()
            => await (await GetGrain()).Clean();
-
     }
 }

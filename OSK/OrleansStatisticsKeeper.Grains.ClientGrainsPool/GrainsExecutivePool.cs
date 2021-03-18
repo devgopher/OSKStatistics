@@ -27,6 +27,9 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         public async Task SetIsLoaded(bool val) =>
             throw new NotImplementedException($"{nameof(SetIsLoaded)} won't be implemented for {nameof(GrainsExecutivePool)}!");
 
+        public async Task<TOUT> Execute<TOUT>(Type type, string funcName, params object[] args)
+            => await (await GetGrain()).Execute<TOUT>(type.Name, funcName, args);
+
         public async Task<TOUT> Execute<TOUT>(string className, string funcName, params object[] args) 
             => await (await GetGrain()).Execute<TOUT>(className, funcName, args);
 
@@ -41,7 +44,6 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
 
         public async Task LoadAssembly(Type targetType)
         {
-            var asmBinary = AssemblyUtils.GetAssemblyBinary(targetType);
             var asmVersion = AssemblyUtils.GetAssemblyVersion(targetType);
             var asmFullname = AssemblyUtils.GetAssemblyName(targetType);
             var asmBytes = AssemblyUtils.GetAssemblyBinary(targetType);
@@ -70,7 +72,7 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         protected override async Task<int> GetGrainNumber()
         {
             int baseNumber = await base.GetGrainNumber();
-            while (!(await _grains[baseNumber].GetIsLoaded()))
+            while (!(await _grains.ElementAt(baseNumber).GetIsLoaded()))
                 baseNumber = await base.GetGrainNumber();
 
             return baseNumber;

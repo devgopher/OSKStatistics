@@ -1,4 +1,5 @@
-﻿using OrleansStatisticsKeeper.Client;
+﻿using Orleans;
+using OrleansStatisticsKeeper.Client;
 using OrleansStatisticsKeeper.Grains.Interfaces;
 using OrleansStatisticsKeeper.Grains.Models;
 using System;
@@ -14,16 +15,13 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         {
         }
 
-        public async Task<ICollection<T>> GetAll()
+        public async Task<ICollection<T>> GetAll(GrainCancellationToken cancellationToken)
             => await (await GetGrain()).GetAll();
 
-        public async Task<T> GetFirst()
-            => await (await GetGrain()).GetFirst();
+        public async Task<T> GetFirst() => await (await GetGrain()).GetFirst();
 
-        public async Task<T> GetLast()
-            => await (await GetGrain()).GetLast();
+        public async Task<T> GetLast() => await (await GetGrain()).GetLast();
 
-        public async Task<bool> Any()
-            => await (await GetGrain()).Any();
+        public async Task<bool> Any() => await (await GetGrain()).Any();
     }
 }

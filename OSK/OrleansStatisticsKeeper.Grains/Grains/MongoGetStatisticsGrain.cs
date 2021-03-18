@@ -24,12 +24,12 @@ namespace OrleansStatisticsKeeper.Grains.Grains
             _logger = logger;
         }
 
-        public async Task<ICollection<T>> GetAll()
+        public async Task<ICollection<T>> GetAll(GrainCancellationToken cancellationToken = null)
         {
             _logger.Info($"{this.GetType().Name}.{nameof(GetAll)}() started...");
 
             var collection = await _mongoUtils.GetCollection<T>();
-            return await collection.AsQueryable().ToListAsync();
+            return await collection.AsQueryable().ToListAsync(cancellationToken.CancellationToken);
         }
 
         public async Task<T> GetFirst()
