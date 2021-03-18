@@ -26,6 +26,7 @@ namespace OrleansStatisticsKeeper.Grains.Tests
         private IExecutiveGrain _executiveGrain;
         private MongoUtils _mongoUtils;
         private OskSettings _oskSettings = new OskSettings();
+        private IAsyncLogger _logger;
 
         [SetUp]
         public async Task Setup()
@@ -39,7 +40,8 @@ namespace OrleansStatisticsKeeper.Grains.Tests
             _mongoUtils = new MongoUtils(_oskSettings);
             _addStatisticsGrain = new MongoManageStatisticsGrain<TestModel>(_mongoUtils);
             _getStatisticsGrain = new MongoGetStatisticsGrain<TestModel>(_mongoUtils, new NLogLogger());
-            _executiveGrain = new GenericExecutiveGrain(new MemoryAssemblyCache());
+            _logger = new NLogLogger();
+            _executiveGrain = new GenericExecutiveGrain(new MemoryAssemblyMembersCache(new MemoryAssemblyCache()), _logger);
             //var clt = new ClientStartup();
             //var client = await clt.StartClientWithRetries();
             //_grainsExecutivePool = new GrainsExecutivePool(client, 10);

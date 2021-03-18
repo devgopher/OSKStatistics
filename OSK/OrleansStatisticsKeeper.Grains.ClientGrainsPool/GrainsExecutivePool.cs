@@ -23,9 +23,7 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         {
         }
 
-        public async Task<bool> GetIsLoaded() => _grains.Any(g => g.GetIsLoaded().Result);
-        public async Task SetIsLoaded(bool val) =>
-            throw new NotImplementedException($"{nameof(SetIsLoaded)} won't be implemented for {nameof(GrainsExecutivePool)}!");
+        public async Task<bool> GetIsLoaded(Type type) => _grains.All(g => g.GetIsLoaded(type).Result);
 
         public async Task<TOUT> Execute<TOUT>(Type type, string funcName, params object[] args)
             => await (await GetGrain()).Execute<TOUT>(type.Name, funcName, args);
@@ -33,6 +31,11 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         public async Task<TOUT> Execute<TOUT>(string className, string funcName, params object[] args) 
             => await (await GetGrain()).Execute<TOUT>(className, funcName, args);
 
+        /// <summary>
+        /// Loads a new assembly!
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <returns></returns>
         public async Task LoadAssembly(Assembly assembly)
         {
             var asmBytes = AssemblyUtils.GetAssemblyBinary(assembly);
@@ -41,7 +44,12 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
 
             await LoadAssembly(asmFullname, asmVersion, asmBytes);
         }
-
+        
+        /// <summary>
+        /// Loads a new assembly!
+        /// </summary>
+        /// <param name="targetType"></param>
+        /// <returns></returns>
         public async Task LoadAssembly(Type targetType)
         {
             var asmVersion = AssemblyUtils.GetAssemblyVersion(targetType);
@@ -51,6 +59,13 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
             await LoadAssembly(asmFullname, asmVersion, asmBytes);
         }
 
+        /// <summary>
+        /// Loads a new assembly
+        /// </summary>
+        /// <param name="assemblyFullName"></param>
+        /// <param name="version"></param>
+        /// <param name="asmPath"></param>
+        /// <returns></returns>
         public async Task LoadAssembly(string assemblyFullName, FileVersionInfo version, string asmPath)
         {
             var tasks = new List<Task>(_grains.Count);
@@ -60,6 +75,13 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
             Task.WaitAll(tasks.ToArray());
         }
 
+        /// <summary>
+        /// Loads a new assembly
+        /// </summary>
+        /// <param name="assemblyFullName"></param>
+        /// <param name="version"></param>
+        /// <param name="asmBytes"></param>
+        /// <returns></returns>
         public async Task LoadAssembly(string assemblyFullName, FileVersionInfo version, byte[] asmBytes)
         {
             var tasks = new List<Task>(_grains.Count);
@@ -69,11 +91,20 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
             Task.WaitAll(tasks.ToArray());
         }
 
+        /// <summary>
+        /// Resize is blocked temporary, because in this case we need to load all newly 
+        /// added grains properly!
+        /// </summary>
+        /// <param name="poolSize"></param>
+        /// <returns></returns>
+        public override async Task Resize(int poolSize)
+            => throw new NotSupportedException($"{nameof(Resize)} isn't supported for {nameof(GrainsExecutivePool)}!");
+
         protected override async Task<int> GetGrainNumber()
         {
             int baseNumber = await base.GetGrainNumber();
-            while (!(await _grains.ElementAt(baseNumber).GetIsLoaded()))
-                baseNumber = await base.GetGrainNumber();
+            //while (!(await _grains.ElementAt(baseNumber).GetIsLoaded()))
+            //    baseNumber = await base.GetGrainNumber();
 
             return baseNumber;
         }

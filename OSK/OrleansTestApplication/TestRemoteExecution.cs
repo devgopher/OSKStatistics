@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using OrleansStatisticsKeeper.Client;
 using OrleansStatisticsKeeper.Grains.ClientGrainsPool;
+using RemoteTestClass;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,8 +28,8 @@ namespace OrleansTestApplication
                 // var addStatisticsGrain = client.AddStatisticsGrain<Student>();
                 var grainsExecutivePool = new GrainsExecutivePool(client, 12);
 
-                await grainsExecutivePool.LoadAssembly(typeof(RemoteTestClass.RemoteExecutionTest));
-                var ret = await grainsExecutivePool.Execute<double>(nameof(RemoteTestClass.RemoteExecutionTest), 
+                await grainsExecutivePool.LoadAssembly(typeof(RemoteExecutionTest));
+                var ret = await grainsExecutivePool.Execute<double>(nameof(RemoteExecutionTest), 
                     nameof(RemoteTestClass.RemoteExecutionTest.PowN), 3, 4);
                 
                 Console.ReadKey();

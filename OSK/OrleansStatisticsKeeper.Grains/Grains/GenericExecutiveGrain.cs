@@ -17,19 +17,17 @@ namespace OrleansStatisticsKeeper.Grains.Grains
     /// </summary>
     public class GenericExecutiveGrain : Grain, IExecutiveGrain
     {
-        private bool isLoaded;
-        public async Task<bool> GetIsLoaded() => isLoaded;
-        public async Task SetIsLoaded(bool val) => isLoaded = val;
-
-        private Assembly assembly;
-        private IAssemblyCache _assemblyCache;
+        private IAssemblyMembersCache _assemblyMembersCache;
         private readonly IAsyncLogger _logger;
 
-        public GenericExecutiveGrain(IAssemblyCache assemblyCache, IAsyncLogger logger)
+        public GenericExecutiveGrain(IAssemblyMembersCache assemblyMembersCache, IAsyncLogger logger)
         {
-            _assemblyCache = assemblyCache;
+            _assemblyMembersCache = assemblyMembersCache;
             _logger = logger;
         }
+
+        public async Task<bool> GetIsLoaded(Type type)
+            => _assemblyMembersCache.GetAssemblyForType(type) != default;
 
         /// <summary>
         /// Loading an assembly with required class and method
@@ -45,34 +43,26 @@ namespace OrleansStatisticsKeeper.Grains.Grains
                 _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() started...");
                 if (asmPath == default)
                 {
-                    _logger.Error($"{this.GetType().Name}.{nameof(LoadAssembly)}() asmpath = null!");
-                    await SetIsLoaded(false);
+                    _logger.Error($"{this.GetType().Name}.{nameof(LoadAssembly)}() asmPath = null!");
                     return;
                 }
 
-                if (!_assemblyCache.Exists(assemblyFullName))
+
+                if (!_assemblyMembersCache.AssemblyExists(assemblyFullName))
                 {
                     _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() no assembly '{assemblyFullName}'" +
                         $" in assembly cache... trying to add a new one...");
-                    assembly = Assembly.LoadFrom(asmPath);
-                    _assemblyCache.Set(assembly);
+                    var assembly = Assembly.LoadFrom(asmPath);
+                    _assemblyMembersCache.AddAssembly(assembly);
                     _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() no assembly '{assemblyFullName}'" +
                         $" added into a cache");
                 }
-                else
-                {
-                    _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() assembly '{assemblyFullName}'" +
-                        $" is already in assembly cache");
-                    assembly = _assemblyCache.Get(assemblyFullName);
-                }
-
+               
                 _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() assembly loaded");
-                await SetIsLoaded(true);
             }
             catch (Exception ex)
             {
                 _logger.Error($"{this.GetType().Name}.{nameof(LoadAssembly)}() exception", ex);
-                await SetIsLoaded(false);
             }
         }
 
@@ -93,33 +83,24 @@ namespace OrleansStatisticsKeeper.Grains.Grains
                 {
                     _logger.Error($"{this.GetType().Name}.{nameof(LoadAssembly)}() asmBytes = null or empty!");
 
-                    await SetIsLoaded(false);
                     return;
                 }
 
-                if (!_assemblyCache.Exists(assemblyFullName))
+                if (!_assemblyMembersCache.AssemblyExists(assemblyFullName))
                 {
                     _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() no assembly '{assemblyFullName}'" +
                         $" in assembly cache... trying to add a new one...");
-                    assembly = Assembly.Load(asmBytes);
-                    _assemblyCache.Set(assembly);
+                    var assembly = Assembly.Load(asmBytes);
+                    _assemblyMembersCache.AddAssembly(assembly);
                     _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() no assembly '{assemblyFullName}'" +
                         $" added into a cache");
                 }
-                else
-                {
-                    _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() assembly '{assemblyFullName}'" +
-                                 $" is already in assembly cache");
-                    assembly = _assemblyCache.Get(assemblyFullName);
-                }
-
+      
                 _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() assembly loaded");
-                await SetIsLoaded(true);
 
             } catch (Exception ex)
             {
                 _logger.Error($"{this.GetType().Name}.{nameof(LoadAssembly)}() exception", ex);
-                await SetIsLoaded(false);
             }
         }
 
@@ -135,13 +116,16 @@ namespace OrleansStatisticsKeeper.Grains.Grains
             params object[] args)
         {
             _logger.Info($"{this.GetType().Name}.{nameof(Execute)}() started...");
-            if (!await GetIsLoaded()) 
-                throw new GrainException($"Nothing to execute!");
+
+            var assembly = _assemblyMembersCache.GetAssemblyForType(className);
 
             var type = assembly.DefinedTypes.FirstOrDefault(t => t.Name == className);
 
             if (type == default)
                 return default;
+
+            if (!await GetIsLoaded(type))
+                throw new GrainException($"Nothing to execute!");
 
             _logger.Info($"{this.GetType().Name}.{nameof(Execute)}() type/method: {type.Name}/{funcName}");
 

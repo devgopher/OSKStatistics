@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using AsyncLogging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -48,7 +49,9 @@ namespace OrleansStatisticsKeeper
                             services.AddSingleton<MongoUtils>();
                             services.AddSingleton(oskSettings);
                             services.AddSingleton(siloSettings);
+                            services.AddScoped<IAsyncLogger, NLogLogger>();
                             services.AddSingleton<IAssemblyCache, MemoryAssemblyCache>();
+                            services.AddSingleton<IAssemblyMembersCache, MemoryAssemblyMembersCache>();
                         })
                         .Configure((System.Action<SchedulingOptions>)(options => options.AllowCallChainReentrancy = false))
                         .Configure((System.Action<ClusterOptions>)(options =>
@@ -58,11 +61,8 @@ namespace OrleansStatisticsKeeper
                         }))
                         .Configure((System.Action<EndpointOptions>)(options => options.AdvertisedIPAddress = IpUtils.IpAddress()))
                         .ConfigureApplicationParts(parts => AddParts(parts, siloSettings).WithReferences())
-                        //.AddPerfCountersTelemetryConsumer()
                         .AddMemoryGrainStorage(name: "StatisticsGrainStorage")
-                        .AddSimpleMessageStreamProvider("OSKProvider", c => c.OptimizeForImmutableData = true);
-                    
-                    //.AddGrainService<DataGrainService>()
+                        .AddSimpleMessageStreamProvider("OSKProvider", c => c.OptimizeForImmutableData = true);                    
                 })
                 .ConfigureLogging(builder => builder.AddConsole())
                 .RunConsoleAsync();
