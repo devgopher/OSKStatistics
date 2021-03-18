@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Utils.Client;
+using Utils.Crypto;
 
 namespace OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies
 {
@@ -27,8 +28,22 @@ namespace OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies
 
         public void Set(Assembly assembly)
         {
-            var fullName = assembly.FullName;
-            _assemblies[fullName] = assembly;
+            if (!_assemblies.ContainsKey(assembly.FullName))
+                _assemblies[assembly.FullName] = assembly;
+        }
+
+        public void Update(Assembly assembly)
+        {
+            if (_assemblies.ContainsKey(assembly.FullName))
+            {
+                var existingAsm = Get(assembly.FullName);
+                if (!HashUtils.CompareHashes(HashUtils.HashForAssembly(assembly), HashUtils.HashForAssembly(existingAsm))) 
+                {
+                    // yeah, I think we need a lock, 'cause of we need to use the same copy of an assembly for all grains simultaneouly!
+                    lock (_assemblies) 
+                        _assemblies[assembly.FullName] = assembly;
+                }
+            }
         }
     }
 }

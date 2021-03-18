@@ -21,6 +21,8 @@ namespace OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies
         {
             if (!_assemblyCache.Exists(assembly.FullName))
                 _assemblyCache.Set(assembly);
+            else
+                _assemblyCache.Update(assembly);
 
             var types = assembly.GetTypes();
             foreach (var type in types)

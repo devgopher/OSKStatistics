@@ -23,8 +23,8 @@ namespace OrleansStatisticsKeeper.Client
         public IGetStatisticsGrain<T> GetStatisticsGrain<T>() where T : DataChunk
             => _client.GetGrain<IGetStatisticsGrain<T>>(Guid.NewGuid());
 
-        public IExecutiveGrain GetExecutiveGrain()
-            => _client.GetGrain<IExecutiveGrain>(Guid.NewGuid());
+        public IOskGrain GetExecutiveGrain()
+            => _client.GetGrain<IOskGrain>(Guid.NewGuid());
 
         public T GetGrain<T>() where T : IGrainWithGuidKey
             => _client.GetGrain<T>(Guid.NewGuid());

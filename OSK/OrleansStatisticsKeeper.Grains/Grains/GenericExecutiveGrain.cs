@@ -15,7 +15,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
     /// <summary>
     /// This type of grain is intended for a remote method execution
     /// </summary>
-    public class GenericExecutiveGrain : Grain, IExecutiveGrain
+    public class GenericExecutiveGrain : Grain, IOskGrain
     {
         private IAssemblyMembersCache _assemblyMembersCache;
         private readonly IAsyncLogger _logger;
@@ -46,7 +46,6 @@ namespace OrleansStatisticsKeeper.Grains.Grains
                     _logger.Error($"{this.GetType().Name}.{nameof(LoadAssembly)}() asmPath = null!");
                     return;
                 }
-
 
                 if (!_assemblyMembersCache.AssemblyExists(assemblyFullName))
                 {

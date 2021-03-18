@@ -29,9 +29,9 @@ namespace OrleansTestApplication
                 var grainsExecutivePool = new GrainsExecutivePool(client, 12);
 
                 await grainsExecutivePool.LoadAssembly(typeof(RemoteExecutionTest));
-                var ret = await grainsExecutivePool.Execute<double>(nameof(RemoteExecutionTest), 
+                var ret = await grainsExecutivePool.Execute<double>(nameof(RemoteExecutionTest),
                     nameof(RemoteTestClass.RemoteExecutionTest.PowN), 3, 4);
-                
+
                 Console.ReadKey();
 
                 return ret;

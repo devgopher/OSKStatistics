@@ -15,6 +15,7 @@ using OrleansStatisticsKeeper.Grains.ClientGrainsPool;
 using System.IO;
 using OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies;
 using Utils.Client;
+using OrleansStatisticsKeeper.Client.GrainsContext;
 
 namespace OrleansStatisticsKeeper.Grains.Tests
 {
@@ -23,10 +24,11 @@ namespace OrleansStatisticsKeeper.Grains.Tests
         private IManageStatisticsGrain<TestModel> _addStatisticsGrain;
         private IGetStatisticsGrain<TestModel> _getStatisticsGrain;
         private GrainsExecutivePool _grainsExecutivePool;
-        private IExecutiveGrain _executiveGrain;
+        private IOskGrain _executiveGrain;
         private MongoUtils _mongoUtils;
         private OskSettings _oskSettings = new OskSettings();
         private IAsyncLogger _logger;
+        private IOskRemoteExecutionContext _grainsContext;
 
         [SetUp]
         public async Task Setup()
@@ -40,6 +42,7 @@ namespace OrleansStatisticsKeeper.Grains.Tests
             _mongoUtils = new MongoUtils(_oskSettings);
             _addStatisticsGrain = new MongoManageStatisticsGrain<TestModel>(_mongoUtils);
             _getStatisticsGrain = new MongoGetStatisticsGrain<TestModel>(_mongoUtils, new NLogLogger());
+            _grainsContext = new GenericGrainsContext();
             _logger = new NLogLogger();
             _executiveGrain = new GenericExecutiveGrain(new MemoryAssemblyMembersCache(new MemoryAssemblyCache()), _logger);
             //var clt = new ClientStartup();

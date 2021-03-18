@@ -1,9 +1,12 @@
-﻿using System;
+﻿using OrleansStatisticsKeeper.Client.GrainsContext;
+using System;
 
 namespace TestAssembly
 {
-    public class TestClass
+    public class TestClass : IHasOskRemoteExecutionContext
     {
+        public IOskRemoteExecutionContext Context { get; set; }
+
         public double Pow2(int a)
             => Math.Pow(a, 2);
 

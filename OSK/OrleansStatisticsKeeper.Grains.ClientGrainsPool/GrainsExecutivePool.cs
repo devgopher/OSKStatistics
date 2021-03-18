@@ -13,15 +13,15 @@ using System.Xml.Serialization;
 using System.Diagnostics;
 using Utils.Client;
 using System.Reflection;
+using OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies;
 
 namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
 {
     [Serializable]
-    public class GrainsExecutivePool : GrainsPool<IExecutiveGrain>, IExecutiveGrain
+    public class GrainsExecutivePool : GrainsPool<IOskGrain>, IOskGrain
     {
         public GrainsExecutivePool(StatisticsClient client, int poolSize) : base(client, poolSize)
-        {
-        }
+        { }
 
         public async Task<bool> GetIsLoaded(Type type) => _grains.All(g => g.GetIsLoaded(type).Result);
 
@@ -84,6 +84,7 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         /// <returns></returns>
         public async Task LoadAssembly(string assemblyFullName, FileVersionInfo version, byte[] asmBytes)
         {
+            // TODO: change it onto direct loading into a cache!
             var tasks = new List<Task>(_grains.Count);
             foreach (var grain in _grains)
                 tasks.Add(grain.LoadAssembly(assemblyFullName, version, asmBytes));
@@ -100,13 +101,6 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         public override async Task Resize(int poolSize)
             => throw new NotSupportedException($"{nameof(Resize)} isn't supported for {nameof(GrainsExecutivePool)}!");
 
-        protected override async Task<int> GetGrainNumber()
-        {
-            int baseNumber = await base.GetGrainNumber();
-            //while (!(await _grains.ElementAt(baseNumber).GetIsLoaded()))
-            //    baseNumber = await base.GetGrainNumber();
-
-            return baseNumber;
-        }
+    //    protected override async Task<int> GetGrainNumber() => await base.GetGrainNumber();
     }
 }

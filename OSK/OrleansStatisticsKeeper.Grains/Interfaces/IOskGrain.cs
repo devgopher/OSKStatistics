@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace OrleansStatisticsKeeper.Grains.Interfaces
 {
-    public interface IExecutiveGrain : IGrainWithGuidKey
+    public interface IOskGrain : IGrainWithGuidKey
     {
         public Task<bool> GetIsLoaded(Type type);
         public Task LoadAssembly(string assemblyFullName, FileVersionInfo version, string asmPath);

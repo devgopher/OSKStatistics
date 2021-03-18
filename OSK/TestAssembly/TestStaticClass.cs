@@ -1,8 +1,9 @@
-﻿using System;
+﻿using OrleansStatisticsKeeper.Client.GrainsContext;
+using System;
 
 namespace TestAssembly
 {
-    public static class TestStaticClass
+    public static class TestStaticClass 
     {
         public static double Pow2(int a)
             => Math.Pow(a, 2);

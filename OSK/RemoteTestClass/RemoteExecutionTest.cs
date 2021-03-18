@@ -1,11 +1,17 @@
-﻿using System;
+﻿using OrleansStatisticsKeeper.Client.GrainsContext;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace RemoteTestClass
 {
-    public static class RemoteExecutionTest
+    public class RemoteExecutionTest : IHasOskRemoteExecutionContext
     {
-        public static double PowN(double a, double exp) => Math.Pow(a, exp);
+        public IOskRemoteExecutionContext Context { get; set; }
+
+        public RemoteExecutionTest(IOskRemoteExecutionContext context)
+            => Context = context;
+
+        public double PowN(double a, double exp) => Math.Pow(a, exp);
     }
 }

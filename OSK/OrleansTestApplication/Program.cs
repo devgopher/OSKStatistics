@@ -12,6 +12,5 @@ namespace OrleansTestApplication
     {
         public static int Main(string[] args) =>  (int)(new TestRemoteExecution()).RunMainAsync().Result;
 
-
     }
 }

@@ -11,5 +11,6 @@ namespace OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies
         public bool Exists(string fullName);
         public Assembly Get(string fullName);
         public void Set(Assembly assembly);
+        public void Update(Assembly assembly);
     }
 }
