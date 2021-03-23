@@ -14,6 +14,7 @@ using System.Diagnostics;
 using Utils.Client;
 using System.Reflection;
 using OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies;
+using OrleansStatisticsKeeper.Client.GrainsContext;
 
 namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
 {
@@ -30,6 +31,11 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
 
         public async Task<TOUT> Execute<TOUT>(string className, string funcName, params object[] args) 
             => await (await GetGrain()).Execute<TOUT>(className, funcName, args);
+
+
+        public async Task<TOUT> ExecuteWithContext<TOUT>(string className, string funcName, object context, params object[] args)
+            => await(await GetGrain()).ExecuteWithContext<TOUT>(className, funcName, context, args);
+
 
         /// <summary>
         /// Loads a new assembly!
@@ -101,6 +107,6 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         public override async Task Resize(int poolSize)
             => throw new NotSupportedException($"{nameof(Resize)} isn't supported for {nameof(GrainsExecutivePool)}!");
 
-    //    protected override async Task<int> GetGrainNumber() => await base.GetGrainNumber();
+        //    protected override async Task<int> GetGrainNumber() => await base.GetGrainNumber();
     }
 }

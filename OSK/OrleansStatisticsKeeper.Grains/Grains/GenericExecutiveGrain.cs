@@ -151,5 +151,46 @@ namespace OrleansStatisticsKeeper.Grains.Grains
 
             return (TOUT)ret;
         }
+
+        public async Task<TOUT> ExecuteWithContext<TOUT>(string className, string funcName, object context, params object[] args)
+        {
+            _logger.Info($"{this.GetType().Name}.{nameof(Execute)}() started...");
+
+            var assembly = _assemblyMembersCache.GetAssemblyForType(className);
+
+            var type = assembly.DefinedTypes.FirstOrDefault(t => t.Name == className);
+
+            if (type == default)
+                return default;
+
+            if (!await GetIsLoaded(type))
+                throw new GrainException($"Nothing to execute!");
+
+            _logger.Info($"{this.GetType().Name}.{nameof(Execute)}() type/method: {type.Name}/{funcName}");
+
+            MethodInfo method;
+            if (args == default)
+                method = type.GetDeclaredMethods(funcName).FirstOrDefault(m => m.GetParameters().Length == 0);
+            else
+                method = type.GetDeclaredMethods(funcName).FirstOrDefault(m => m.GetParameters().Length == args.Length);
+
+            if (method == default)
+                throw new GrainException($"Can't find a method with name {funcName}!");
+
+            _logger.Trace($"{this.GetType().Name}.{nameof(Execute)}() method was found: {method.Name}");
+
+
+            if (method.IsStatic)
+                return (TOUT)method.Invoke(null, args);
+
+            var obj = Activator.CreateInstance(type, context);
+            _logger.Trace($"{this.GetType().Name}.{nameof(Execute)}() instance created");
+
+            var ret = method.Invoke(obj, args);
+            _logger.Trace($"{this.GetType().Name}.{nameof(Execute)}() method invoked and we've got a result");
+
+            return (TOUT)ret;
+        }
+
     }
 }
