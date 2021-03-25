@@ -11,6 +11,6 @@ namespace OrleansStatisticsKeeper.Client.GrainsContext
     {
         public void SetValue(string name, object val);
         public object GetValue(string name);
-        public T GetValue<T>(string name) where T : class;
+        public T GetValue<T>(string name);
     }
 }

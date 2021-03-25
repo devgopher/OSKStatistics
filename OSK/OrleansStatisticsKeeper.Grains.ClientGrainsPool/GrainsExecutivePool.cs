@@ -22,7 +22,8 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
     public class GrainsExecutivePool : GrainsPool<IOskGrain>, IOskGrain
     {
         public GrainsExecutivePool(StatisticsClient client, int poolSize) : base(client, poolSize)
-        { }
+        {
+        }
 
         public async Task<bool> GetIsLoaded(Type type) => _grains.All(g => g.GetIsLoaded(type).Result);
 
@@ -56,13 +57,24 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         /// </summary>
         /// <param name="targetType"></param>
         /// <returns></returns>
-        public async Task LoadAssembly(Type targetType)
+        public async Task LoadAssembly(Type targetType, bool loadReferences = true)
         {
             var asmVersion = AssemblyUtils.GetAssemblyVersion(targetType);
             var asmFullname = AssemblyUtils.GetAssemblyName(targetType);
             var asmBytes = AssemblyUtils.GetAssemblyBinary(targetType);
 
             await LoadAssembly(asmFullname, asmVersion, asmBytes);
+
+            if (loadReferences)
+            {
+                var references = AssemblyUtils.GetNonSystemReferencedAssemblies(asmFullname, 0, 3);
+                foreach (var @ref in references)
+                {
+                    var asm = Assembly.Load(@ref);
+                    await LoadAssembly(asm);
+                }
+            }
+
         }
 
         /// <summary>

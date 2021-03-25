@@ -33,10 +33,13 @@ namespace OrleansTestApplication
 
                 await grainsExecutivePool.LoadAssembly(typeof(RemoteExecutionTest));
 
-                for (int i = 0; i < 30; ++i)
+                var context = new GenericGrainsContext();
+                context.SetValue("Add", 1000);
+
+                for (int i = 0; i < 30000; ++i)
                 {
-                    var ret = await grainsExecutivePool.ExecuteWithContext<double>(nameof(RemoteExecutionTest), 
-                        nameof(RemoteTestClass.RemoteExecutionTest.PowN), new GenericGrainsContext(), 3, i);
+                    var ret = await grainsExecutivePool.ExecuteWithContext<decimal>(nameof(RemoteExecutionTest), 
+                        nameof(RemoteTestClass.RemoteExecutionTest.PowN), context, (decimal)3, (decimal)i);
                     Console.WriteLine($"RET: {ret}");
                 }
 

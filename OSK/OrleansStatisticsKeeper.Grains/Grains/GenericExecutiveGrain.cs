@@ -53,8 +53,8 @@ namespace OrleansStatisticsKeeper.Grains.Grains
                         $" in assembly cache... trying to add a new one...");
                     var assembly = Assembly.LoadFrom(asmPath);
                     _assemblyMembersCache.AddAssembly(assembly);
-                    _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() no assembly '{assemblyFullName}'" +
-                        $" added into a cache");
+
+                    _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() no assembly '{assemblyFullName}' added into a cache");
                 }
                
                 _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() assembly loaded");
@@ -89,14 +89,14 @@ namespace OrleansStatisticsKeeper.Grains.Grains
                 {
                     _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() no assembly '{assemblyFullName}'" +
                         $" in assembly cache... trying to add a new one...");
-                    var assembly = Assembly.Load(asmBytes);
+                    var assembly = AppDomain.CurrentDomain.Load(asmBytes);//Assembly.Load(asmBytes);
+                    var asmDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    File.WriteAllBytes(Path.Combine(asmDirectory, $"{assembly.GetName().Name}.dll"), asmBytes);
                     _assemblyMembersCache.AddAssembly(assembly);
-                    _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() no assembly '{assemblyFullName}'" +
-                        $" added into a cache");
+                    _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() no assembly '{assemblyFullName}' added into a cache");
                 }
       
                 _logger.Info($"{this.GetType().Name}.{nameof(LoadAssembly)}() assembly loaded");
-
             } catch (Exception ex)
             {
                 _logger.Error($"{this.GetType().Name}.{nameof(LoadAssembly)}() exception", ex);

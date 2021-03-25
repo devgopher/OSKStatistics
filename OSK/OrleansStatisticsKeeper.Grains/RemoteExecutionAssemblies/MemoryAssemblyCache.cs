@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Utils.Client;
 using Utils.Crypto;
 
@@ -30,6 +32,19 @@ namespace OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies
         {
             if (!_assemblies.ContainsKey(assembly.FullName))
                 _assemblies[assembly.FullName] = assembly;
+        }
+
+        public async Task<Assembly> WaitFor(string fullName, int timeoutInMs = 20000)
+        {
+            DateTime current = DateTime.Now;
+            while (!Exists(fullName) && (DateTime.Now - current).TotalMilliseconds > timeoutInMs)
+                Thread.Sleep(10);
+
+            if (!Exists(fullName))
+                return null;
+            
+            var kvp = _assemblies.FirstOrDefault(a => (a.Key == fullName));
+            return kvp.Value;
         }
 
         public void Update(Assembly assembly)

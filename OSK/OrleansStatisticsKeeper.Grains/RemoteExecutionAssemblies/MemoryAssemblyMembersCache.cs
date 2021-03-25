@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Utils.Client;
 
 namespace OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies
 {
@@ -13,8 +15,36 @@ namespace OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies
         private readonly ConcurrentDictionary<string, Assembly> _innerCache
             = new ConcurrentDictionary<string, Assembly>();
 
-        public MemoryAssemblyMembersCache(IAssemblyCache assemblyCache) => _assemblyCache = assemblyCache;
+        public MemoryAssemblyMembersCache(IAssemblyCache assemblyCache)
+        {
+            _assemblyCache = assemblyCache;
+            AppDomain.CurrentDomain.AssemblyResolve += (object? sender, ResolveEventArgs args) =>
+            {
+                var task = assemblyCache.WaitFor(args.RequestingAssembly.FullName, 20000);
+                task.Wait();
 
+                var item = task.Result;
+                if (item != null)
+                {
+                    //AppDomain.CurrentDomain.LO
+                    var fullName = item.FullName;
+
+                    var refs = item.GetReferencedAssemblies();
+                    foreach (var @ref in refs)
+                    {
+                        if (AssemblyUtils.IsSystemAssembly(@ref))
+                            continue;
+                        var asmDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                        var assembly = AppDomain.CurrentDomain.Load(Path.Combine(asmDirectory, $"{@ref.Name}.dll"));
+                    }
+
+                    return item;
+                }
+
+                return null;
+            };
+        }
+        
         public static string GetFullKey(Type type) => $"{type.Assembly.GetName()}.{type.Name}";
 
         public void AddAssembly(Assembly assembly)
@@ -23,7 +53,7 @@ namespace OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies
                 _assemblyCache.Set(assembly);
             else
                 _assemblyCache.Update(assembly);
-
+            
             var types = assembly.GetTypes();
             foreach (var type in types)
             {
