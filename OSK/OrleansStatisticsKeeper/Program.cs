@@ -105,9 +105,7 @@ namespace OrleansStatisticsKeeper
 
             var linkedAsms = GetLinkedAssemblies(siloSettings);
             foreach (var asm in linkedAsms)
-            {
                 results.AddApplicationPart(asm);
-            }
 
             return results;
         }

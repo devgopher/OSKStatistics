@@ -39,10 +39,19 @@ namespace Utils.Client
             => FileVersionInfo.GetVersionInfo(path);
 
         public static bool IsSystemAssembly(Assembly a)
-            => a.FullName.StartsWith("System.") && !a.FullName.StartsWith("Microsoft.");
+            => a.FullName.StartsWith("System.") && a.FullName.StartsWith("Microsoft.");
 
         public static bool IsSystemAssembly(AssemblyName a)
-            => a.FullName.StartsWith("System.") && !a.FullName.StartsWith("Microsoft.");
+            => a.FullName.StartsWith("System.") && a.FullName.StartsWith("Microsoft.");
+
+        public static bool IsSystemAssembly(string fullName)
+            => fullName.StartsWith("System.") && fullName.StartsWith("Microsoft.");
+
+        public static bool IsOskAssembly(AssemblyName a)
+            => a.FullName.StartsWith("OrleansStatisticsKeeper.");
+
+        public static bool IsOskAssembly(string fullName)
+            => fullName.StartsWith("OrleansStatisticsKeeper.");
 
         public static IEnumerable<Assembly> GetNonSystemAssemblies(IEnumerable<Assembly> input)
             => input?.Where(a => !a.FullName.StartsWith("System.") && !a.FullName.StartsWith("Microsoft."));

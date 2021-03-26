@@ -32,10 +32,24 @@ namespace OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies
                     var refs = item.GetReferencedAssemblies();
                     foreach (var @ref in refs)
                     {
-                        if (AssemblyUtils.IsSystemAssembly(@ref))
+                        if (AssemblyUtils.IsSystemAssembly(@ref) || AssemblyUtils.IsOskAssembly(@ref))
                             continue;
                         var asmDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                        var assembly = AppDomain.CurrentDomain.Load(Path.Combine(asmDirectory, $"{@ref.Name}.dll"));
+                        var assembly = Assembly.LoadFile(Path.Combine(asmDirectory, $"{@ref.Name}.dll"));
+                        //var types = assembly.GetTypes();
+                        //foreach (var type in types)
+                        //{
+                        //    try
+                        //    {
+                        //        var tobj = Activator.CreateInstance(type);
+                        //        if (tobj != default)
+                        //            break;
+                        //    }
+                        //    catch (Exception)
+                        //    {
+                        //        // ignore
+                        //    }
+                        //}
                     }
 
                     return item;
