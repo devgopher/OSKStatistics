@@ -35,6 +35,13 @@ namespace OrleansStatisticsKeeper.Client
             configuration.GetSection(nameof(OskSettings)).Bind(_oskSettings);
         }
 
+        public StatisticsClient StartClientWithRetriesSync()
+        {
+            var statisticsClientTask = StartClientWithRetries();
+            statisticsClientTask.Wait();
+            return statisticsClientTask.Result;
+        }
+
         public async Task<StatisticsClient> StartClientWithRetries()
         {
             _attempt = 0;
