@@ -12,7 +12,7 @@ namespace OrleansStatisticsKeeper.SiloHost.Utils
     {
         private const int max_thread_count = 1000;
         private const int min_thread_count = 10;
-        private static int current_thread_count = 20;
+        private static int current_thread_count = 50;
 
         public static async Task Start(int percent, CancellationToken cancellationToken)
         {

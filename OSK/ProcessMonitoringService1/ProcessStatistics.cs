@@ -40,26 +40,41 @@ namespace ProcessMonitoringService
         {
             var clt = new ClientStartup();
             _client = clt.StartClientWithRetriesSync();
-            _addStatisticsGrainPool = new GrainsManageStatisticsPool<MonitoredProcess>(_client, 10);
+            _addStatisticsGrainPool = new GrainsManageStatisticsPool<MonitoredProcess>(_client, 100);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var runningProcesses = Process.GetProcesses();
-
-            var mps = runningProcesses.Select(p => new MonitoredProcess()
+            while (!stoppingToken.IsCancellationRequested)
             {
-                ProcessId = p.Id,
-                ProcessName = p.ProcessName,
-                DateTime = DateTime.Now,
-                ProcessOwner = GetProcessOwner(p.ProcessName),
-                CpuLoad = Utils.Process.ProcessCpuCounter.GetPerfCounterForProcessId(p.Id)?.NextValue()
-            });
+                Console.WriteLine("EXECUTING...");
+                var runningProcesses = Process.GetProcesses();
+                await Task.Run(() =>
+                {
+                    foreach (var p in runningProcesses)
+                    {
+                        try
+                        {
+                            var monitoredProcess = new MonitoredProcess()
+                            {
+                                ProcessId = p.Id,
+                                ProcessName = p.ProcessName,
+                                DateTime = DateTime.Now,
+                                ProcessOwner = GetProcessOwner(p.ProcessName),
+                                CpuLoad = Utils.Process.ProcessCpuCounter.GetPerfCounterForProcessId(p.Id)?.NextValue()
+                            };
 
-            foreach (var prc in mps)
-                await _addStatisticsGrainPool.Put(prc);
+                            _addStatisticsGrainPool.Put(monitoredProcess);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Exception: {ex.Message}");
+                        }
+                    }
+                });
 
-            Thread.Sleep(60000);
+                Thread.Sleep(5000);
+            }
         }
 
         public override void Dispose()

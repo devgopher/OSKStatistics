@@ -4,6 +4,12 @@ namespace OrleansStatisticsKeeper.Grains.Database
 {
     public static class ConnectionsFactory
     {
-        public static MongoClient OpenMongo(string connString) => new MongoClient(connString);
+        private static MongoClient _mongoClient;
+        public static MongoClient OpenMongo(string connString)
+        {
+            if (_mongoClient == null)
+                _mongoClient = new MongoClient(connString);
+            return _mongoClient;
+        }
     }
 }
