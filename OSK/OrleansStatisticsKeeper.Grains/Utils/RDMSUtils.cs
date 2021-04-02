@@ -1,7 +1,8 @@
-﻿using OrleansStatisticsKeeper.Grains.Database;
+﻿using DapperExtensions;
+using OrleansStatisticsKeeper.Grains.Database;
 using OrleansStatisticsKeeper.Grains.Models;
 using OrleansStatisticsKeeper.Models.Settings;
-using System.Data;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace OrleansStatisticsKeeper.Grains.Utils
@@ -9,20 +10,13 @@ namespace OrleansStatisticsKeeper.Grains.Utils
     public class RDMSUtils
     {
         private readonly OskSettings _settings;
-        private readonly string RdmsType;
 
         public RDMSUtils(OskSettings settings) => _settings = settings;
 
-        public async Task<DataTable> GetData<T>() where T : DataChunk
+        public async Task<IEnumerable<T>> GetData<T>() where T : DataChunk
         {
-            using (var rdmsConnection = ConnectionsFactory.OpenRdms(_settings.ConnectionType, _settings.ConnectionString))
-            {
-                rdmsConnection.Open();
-                var collection = rdmsConnection;
-
-
-                return collection;
-            }
+            using var rdmsConnection = ConnectionsFactory.OpenRdms(_settings.ConnectionType, _settings.ConnectionString);
+            return await rdmsConnection.GetListAsync<T>();
         }
     }
 }
