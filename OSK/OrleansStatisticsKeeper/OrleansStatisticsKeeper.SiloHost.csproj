@@ -23,6 +23,8 @@
     <PackageReference Include="Microsoft.Orleans.Persistence.AzureStorage" Version="3.4.0" />
     <PackageReference Include="Orleans.TelemetryConsumers.ECS" Version="1.0.0" />
     <PackageReference Include="MongoDB.Driver.Core" Version="2.11.5" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
+    <PackageReference Include="System.Data.SQLite.Linq" Version="1.0.113" />
   </ItemGroup>
 
   <ItemGroup>
