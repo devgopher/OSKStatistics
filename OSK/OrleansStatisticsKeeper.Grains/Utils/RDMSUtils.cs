@@ -13,19 +13,16 @@ namespace OrleansStatisticsKeeper.Grains.Utils
 
         public RDMSUtils(OskSettings settings) => _settings = settings;
 
-        public async Task<DataTable> GetData<T>()
-            where T : DataChunk
+        public async Task<DataTable> GetData<T>() where T : DataChunk
         {
             using (var rdmsConnection = ConnectionsFactory.OpenRdms(_settings.ConnectionType, _settings.ConnectionString))
             {
                 rdmsConnection.Open();
-                
+                var collection = rdmsConnection;
+
+
+                return collection;
             }
-
-
-            
-   
-            return collection;
         }
     }
 }
