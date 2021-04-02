@@ -1,4 +1,5 @@
-﻿using OrleansStatisticsKeeper.Client;
+﻿using Orleans;
+using OrleansStatisticsKeeper.Client;
 using OrleansStatisticsKeeper.Grains.Interfaces;
 using OrleansStatisticsKeeper.Grains.Models;
 using System;
@@ -7,31 +8,20 @@ using System.Threading.Tasks;
 
 namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
 {
-    public class GrainsGetStatisticsPool<T> : IGetStatisticsGrain<T>
+    public class GrainsGetStatisticsPool<T> : GrainsPool<IGetStatisticsGrain<T>>, IGetStatisticsGrain<T>
         where T : DataChunk
     {
-        private readonly IList<IGetStatisticsGrain<T>> _grains;
-        private readonly Random rand = new Random(DateTime.Now.Millisecond);
-
-        public GrainsGetStatisticsPool(StatisticsClient client, int poolSize)
+        public GrainsGetStatisticsPool(StatisticsClient client, int poolSize) : base(client, poolSize)
         {
-            _grains = new List<IGetStatisticsGrain<T>>(poolSize);
-            for (int i = 0; i < poolSize; ++i)
-                _grains.Add(client.GetStatisticsGrain<T>());
         }
 
-        private int GetGrainNumber() => rand.Next() % _grains.Count;
+        public async Task<ICollection<T>> GetAll(GrainCancellationToken cancellationToken)
+            => await (await GetGrain()).GetAll();
 
-        public async Task<ICollection<T>> GetAll()
-            => await _grains[GetGrainNumber()].GetAll();
+        public async Task<T> GetFirst() => await (await GetGrain()).GetFirst();
 
-        public async Task<T> GetFirst()
-            => await _grains[GetGrainNumber()].GetFirst();
+        public async Task<T> GetLast() => await (await GetGrain()).GetLast();
 
-        public async Task<T> GetLast()
-            => await _grains[GetGrainNumber()].GetLast();
-
-        public async Task<bool> Any()
-            => await _grains[GetGrainNumber()].Any();
+        public async Task<bool> Any() => await (await GetGrain()).Any();
     }
 }

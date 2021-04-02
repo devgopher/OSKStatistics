@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Orleans.Core" Version="3.4.1" />
     <PackageReference Include="NUnit" Version="3.13.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
@@ -21,7 +22,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OrleansStatisticsKeeper.Client\OrleansStatisticsKeeper.Client.csproj" />
+    <ProjectReference Include="..\OrleansStatisticsKeeper.Grains.ClientGrainsPool\OrleansStatisticsKeeper.Grains.ClientGrainsPool.csproj" />
     <ProjectReference Include="..\OrleansStatisticsKeeper.Grains\OrleansStatisticsKeeper.Grains.csproj" />
+	  <ProjectReference Include="..\OrleansStatisticsKeeper.Grains\OrleansStatisticsKeeper.Grains.csproj" />
+	  <ProjectReference Include="..\TestAssembly\TestAssembly.csproj" />
   </ItemGroup>
 
   <ItemGroup>

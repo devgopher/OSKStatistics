@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using AsyncLogging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,6 +15,7 @@ using Orleans.ApplicationParts;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using OrleansStatisticsKeeper.Grains.Grains;
+using OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies;
 using OrleansStatisticsKeeper.Grains.Utils;
 using OrleansStatisticsKeeper.Models.Settings;
 using OrleansStatisticsKeeper.SiloHost.Utils;
@@ -47,6 +49,9 @@ namespace OrleansStatisticsKeeper
                             services.AddSingleton<MongoUtils>();
                             services.AddSingleton(oskSettings);
                             services.AddSingleton(siloSettings);
+                            services.AddScoped<IAsyncLogger, NLogLogger>();
+                            services.AddSingleton<IAssemblyCache, MemoryAssemblyCache>();
+                            services.AddSingleton<IAssemblyMembersCache, MemoryAssemblyMembersCache>();
                         })
                         .Configure((System.Action<SchedulingOptions>)(options => options.AllowCallChainReentrancy = false))
                         .Configure((System.Action<ClusterOptions>)(options =>
@@ -56,11 +61,8 @@ namespace OrleansStatisticsKeeper
                         }))
                         .Configure((System.Action<EndpointOptions>)(options => options.AdvertisedIPAddress = IpUtils.IpAddress()))
                         .ConfigureApplicationParts(parts => AddParts(parts, siloSettings).WithReferences())
-                        //.AddPerfCountersTelemetryConsumer()
                         .AddMemoryGrainStorage(name: "StatisticsGrainStorage")
-                        .AddSimpleMessageStreamProvider("OSKProvider", c => c.OptimizeForImmutableData = true);
-                    
-                    //.AddGrainService<DataGrainService>()
+                        .AddSimpleMessageStreamProvider("OSKProvider", c => c.OptimizeForImmutableData = true);                    
                 })
                 .ConfigureLogging(builder => builder.AddConsole())
                 .RunConsoleAsync();
@@ -103,9 +105,7 @@ namespace OrleansStatisticsKeeper
 
             var linkedAsms = GetLinkedAssemblies(siloSettings);
             foreach (var asm in linkedAsms)
-            {
                 results.AddApplicationPart(asm);
-            }
 
             return results;
         }

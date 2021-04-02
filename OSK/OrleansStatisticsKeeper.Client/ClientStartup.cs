@@ -10,7 +10,12 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AsyncLogging;
+using NLog;
+using Utils;
 using Orleans.Hosting;
+using System.Net.Sockets;
+using Orleans.Networking.Shared;
+using Orleans.Runtime.Messaging;
 
 namespace OrleansStatisticsKeeper.Client
 {
@@ -30,11 +35,18 @@ namespace OrleansStatisticsKeeper.Client
             configuration.GetSection(nameof(OskSettings)).Bind(_oskSettings);
         }
 
+        public StatisticsClient StartClientWithRetriesSync()
+        {
+            var statisticsClientTask = StartClientWithRetries();
+            statisticsClientTask.Wait();
+            return statisticsClientTask.Result;
+        }
+
         public async Task<StatisticsClient> StartClientWithRetries()
         {
             _attempt = 0;
             _siloSettings.SiloAddresses ??= new List<string>();
-           // _siloSettings.SiloAddresses.Add(IpUtils.IpAddress().ToString());
+            _siloSettings.SiloAddresses.Add(IpUtils.IpAddress().ToString());
 
             var innerClient = new ClientBuilder()
                 .UseStaticClustering(_siloSettings.SiloAddresses.Select(a => new IPEndPoint(IPAddress.Parse(a), _siloSettings.SiloPort)).ToArray())
@@ -50,12 +62,14 @@ namespace OrleansStatisticsKeeper.Client
             await innerClient.Connect(RetryFilter);
             Console.WriteLine("Client successfully connect to silo host");
 
-            return new StatisticsClient(innerClient, new NLogLogger());
+            return new StatisticsClient(innerClient, new NLogLogger(LogManager.GetCurrentClassLogger()));
         }
 
         private async Task<bool> RetryFilter(Exception exception)
         {
-            if (exception.GetType() != typeof(SiloUnavailableException))
+            if (exception.GetType() != typeof(SiloUnavailableException) && 
+                exception.GetType() != typeof(SocketConnectionException) &&
+                exception.GetType() != typeof(ConnectionFailedException))
             {
                 Console.WriteLine($"Cluster client failed to connect to cluster with unexpected error.  Exception: {exception}");
                 return false;
