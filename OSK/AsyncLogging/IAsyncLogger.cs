@@ -22,3 +22,4 @@ namespace AsyncLogging
         void Fatal(string message, Exception ex = default);
     }
 }
+ 

@@ -16,8 +16,8 @@ namespace OrleansStatisticsKeeper.Grains.Models
         [Indexed]
         public long DateTimeTicks { get; set; }
 
-        public DateTime GetDateTime => new DateTime(DateTimeTicks);
+        public virtual DateTime GetDateTime => new DateTime(DateTimeTicks);
 
-        public void SetDateTime(DateTime dt) => DateTimeTicks = dt.Ticks;
+        public virtual void SetDateTime(DateTime dt) => DateTimeTicks = dt.Ticks;
     }
 }
