@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using Flurl;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ using OnlineMeteoStatistics.Models;
 using OnlineMeteoStatistics.Settings;
 using OrleansStatisticsKeeper.Client;
 using OrleansStatisticsKeeper.Grains.ClientGrainsPool;
+using OrleansStatisticsKeeper.Grains.Models;
 
 namespace OnlineMeteoStatistics.MeteoHttpClient
 {
@@ -35,7 +37,7 @@ namespace OnlineMeteoStatistics.MeteoHttpClient
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             var guid = _settings.NarodMonGuid.Replace("-", "");
-            var args = $"?lat=55.754500&lon=37.626132&radius=20&types=1&uuid={guid}&api_key={_settings.NarodApiKey}&lang=ru";
+            var args = $"?lat=55.754500&lon=37.626132&radius=100&types=1&uuid={guid}&api_key={_settings.NarodApiKey}&lang=ru";
             var fullRequest = Url.Combine(basicAddresss, nearBySensorsRequest, args);
 
             while (!cancellationToken.IsCancellationRequested)
@@ -51,33 +53,26 @@ namespace OnlineMeteoStatistics.MeteoHttpClient
                         var body = await res.Content.ReadAsStringAsync();
                         var response = JsonConvert.DeserializeObject<SensorsNearbyResponse>(body);
 
-                        //var values = response.Devices.SelectMany(d => d.Sensors,
-                        //    (d, s) =>
-                        //    {
-                        //        if (s == null)
-                        //            return new DeviceValues();
-                        //        return new DeviceValues()
-                        //        {
-                        //            DateTimeTicks = d.Time,
-                        //            Id = Guid.NewGuid(),
-                        //            Lat = d.Lat,
-                        //            Lon = d.Lon,
-                        //            Unit = s.Unit,
-                        //            Value = s.Value
-                        //        };
-                        //    });
+                        var values = response.Devices.SelectMany(d => d.Sensors,
+                            (d, s) =>
+                            {
+                                if (s == null)
+                                    return new DeviceValues();
+                                return new DeviceValues
+                                {
+                                    DateTimeTicks = d.Time,
+                                    DeviceId = d.Id.ToString(),
+                                    Id = Guid.NewGuid(),
+                                    DateTimeUtc = DataChunk.GetDateTimeFromUnix(d.Time).ToUniversalTime(),
+                                    Lat = d.Lat,
+                                    Lon = d.Lon,
+                                    Unit = s.Unit,
+                                    Value = s.Value
+                                };
+                            });
 
-                        var dev = new DeviceValues()
-                        {
-                            DateTimeTicks = 0,
-                            Id = Guid.NewGuid(),
-                            Lat = 55.436,
-                            Lon = 44.33,
-                            Unit = "@",
-                            Value = 13.2
-                        };
-
-                        await _addStatisticsGrainPool.Put(dev);
+                        foreach (var val in values)
+                            await _addStatisticsGrainPool.Put(val);
                     }
                     else
                         Console.WriteLine($"{nameof(NarodMonPolling)}.{nameof(StartAsync)}() status code: {res.StatusCode}!");

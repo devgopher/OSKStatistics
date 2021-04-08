@@ -16,7 +16,9 @@ namespace OrleansStatisticsKeeper.Grains.Models
         [Indexed]
         public long DateTimeTicks { get; set; }
 
-        public virtual DateTime GetDateTime => new DateTime(DateTimeTicks);
+        public static DateTime GetDateTime(long ticks) => new DateTime(ticks);
+        public static DateTime GetDateTimeFromUnix(long unixMs) => DateTime.UnixEpoch.AddSeconds(unixMs);
+        public DateTime GetDateTime() => GetDateTime(DateTimeTicks);
 
         public virtual void SetDateTime(DateTime dt) => DateTimeTicks = dt.Ticks;
     }
