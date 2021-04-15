@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using OrleansStatisticsKeeper.Grains.Models;
 
 namespace OnlineMeteoStatistics.Models
 {
-    public class Device
+    public class Device : DataChunk
     {
         [JsonProperty("id")]
         public int Id { get; set; }

@@ -1,12 +1,13 @@
-﻿using OrleansStatisticsKeeper.Grains.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AsyncLogging;
 using EntityFrameworkCore.BootKit;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using Orleans;
+using OrleansStatisticsKeeper.Grains.Interfaces;
 using OrleansStatisticsKeeper.Grains.Models;
 using MongoUtils = OrleansStatisticsKeeper.Grains.Utils.MongoUtils;
 
@@ -24,17 +25,22 @@ namespace OrleansStatisticsKeeper.Grains.Grains
             _logger = logger;
         }
 
-        public async Task<ICollection<T>> GetAll(GrainCancellationToken cancellationToken = null)
+        public async Task<string> GetAllSerialized(GrainCancellationToken cancellationToken = null)
         {
-            _logger.Info($"{this.GetType().Name}.{nameof(GetAll)}() started...");
+            _logger.Info($"{GetType().Name}.{nameof(GetAllSerialized)}() started...");
 
             var collection = await _mongoUtils.GetCollection<T>();
-            return await collection.AsQueryable().ToListAsync(cancellationToken.CancellationToken);
+            if (cancellationToken == null) 
+                return JsonConvert.SerializeObject(await collection.AsQueryable().ToListAsync());
+
+            var serialized = JsonConvert.SerializeObject(await collection.AsQueryable().ToListAsync(cancellationToken.CancellationToken));
+
+            return serialized;
         }
 
         public async Task<T> GetFirst()
         {
-            _logger.Info($"{this.GetType().Name}.{nameof(GetFirst)}() started...");
+            _logger.Info($"{GetType().Name}.{nameof(GetFirst)}() started...");
 
             var collection = await _mongoUtils.GetCollection<T>();
             return collection.FirstOrDefault();
@@ -42,7 +48,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
 
         public async Task<T> GetLast()
         {
-            _logger.Info($"{this.GetType().Name}.{nameof(GetLast)}() started...");
+            _logger.Info($"{GetType().Name}.{nameof(GetLast)}() started...");
 
             var collection = await _mongoUtils.GetCollection<T>();
             return collection.AsQueryable().TakeLast(1).FirstOrDefault();
@@ -50,10 +56,15 @@ namespace OrleansStatisticsKeeper.Grains.Grains
 
         public async Task<bool> Any()
         {
-            _logger.Info($"{this.GetType().Name}.{nameof(Any)}() started...");
+            _logger.Info($"{GetType().Name}.{nameof(Any)}() started...");
 
             var collection = await _mongoUtils.GetCollection<T>();
             return collection.AsQueryable().Any();
+        }
+
+        public Task<bool> Any(Func<bool, T> func)
+        {
+            throw new NotImplementedException();
         }
     }
 }

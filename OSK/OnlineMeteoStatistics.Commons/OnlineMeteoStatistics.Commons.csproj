@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OrleansStatisticsKeeper.Models\OrleansStatisticsKeeper.Models.csproj" />
+    <ProjectReference Include="..\OrleansStatisticsKeeper.Services\OrleansStatisticsKeeper.Client.Services.csproj" />
+  </ItemGroup>
+
+</Project>

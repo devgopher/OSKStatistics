@@ -1,7 +1,7 @@
 ﻿using System;
 using OrleansStatisticsKeeper.Grains.Models;
 
-namespace OnlineMeteoStatistics.Models
+namespace OnlineMeteoStatistics.Commons.Models
 {
     [Serializable]
     public class DeviceValues : DataChunk

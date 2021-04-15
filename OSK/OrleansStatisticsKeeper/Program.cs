@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.ApplicationParts;
+using Orleans.CodeGeneration;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using OrleansStatisticsKeeper.Grains.Grains;
@@ -72,7 +73,7 @@ namespace OrleansStatisticsKeeper
         {
             var directoryInfo = Directory.GetParent(Directory.GetCurrentDirectory()).Parent;
             var basicDirectory = directoryInfo?.FullName;
-            basicDirectory = directoryInfo != null ? directoryInfo?.Parent?.Parent?.FullName : basicDirectory;
+            basicDirectory = directoryInfo != null ? directoryInfo.Parent?.Parent?.FullName : basicDirectory;
          
             var asmPaths = siloSettings.ModelsAssemblies?.SelectMany(x => Directory.GetFiles(basicDirectory, x, SearchOption.AllDirectories));
 
@@ -99,9 +100,10 @@ namespace OrleansStatisticsKeeper
 
         private static IApplicationPartManagerWithAssemblies AddParts(IApplicationPartManager parts, SiloSettings siloSettings)
         {
-            var results= parts
-                      .AddApplicationPart(typeof(MongoManageStatisticsGrain<>).Assembly)
-                      .AddApplicationPart(typeof(MongoGetStatisticsGrain<>).Assembly);
+            var results = parts
+                .AddApplicationPart(typeof(MongoManageStatisticsGrain<>).Assembly)
+                .AddApplicationPart(typeof(MongoGetStatisticsGrain<>).Assembly)
+                .WithCodeGeneration();
 
             var linkedAsms = GetLinkedAssemblies(siloSettings);
             foreach (var asm in linkedAsms)

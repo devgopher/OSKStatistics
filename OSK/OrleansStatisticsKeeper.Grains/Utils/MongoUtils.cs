@@ -21,7 +21,7 @@ namespace OrleansStatisticsKeeper.Grains.Utils
             var database = mongoConnection.GetDatabase(_settings.Database);
             IMongoCollection<T> collection;
 
-            if ((await database.ListCollectionNamesAsync()).ToList().All(c => c != typeName))
+            if ((await database.ListCollectionNamesAsync()).ToEnumerable().All(c => c != typeName))
             {
                 await database.CreateCollectionAsync(typeName);
                 collection = database.GetCollection<T>(typeName);

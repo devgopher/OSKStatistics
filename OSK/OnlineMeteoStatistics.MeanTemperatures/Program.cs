@@ -2,9 +2,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OnlineMeteoStatistics.Commons.Settings;
+using OnlineMeteoStatistics.MeanTemperatures.Services;
 using OnlineMeteoStatistics.MeteoHttpClient;
+using OrleansStatisticsKeeper.Client.Services.Utils;
 
-namespace OnlineMeteoStatistics
+namespace OnlineMeteoStatistics.MeanTemperatures
 {
     class Program
     {
@@ -22,11 +24,11 @@ namespace OnlineMeteoStatistics
                         .AddJsonFile("appsettings.json", true, true)
                         .Build();
 
-                    configuration.GetSection( nameof(OnlineMeteoStatisticsSettings)).Bind(settings);
+                    configuration.GetSection(nameof(OnlineMeteoStatisticsSettings)).Bind(settings);
 
                     services.AddSingleton(settings);
-                    services.AddHttpClient<NarodMonPolling>();
-                    services.AddHostedService<NarodMonPolling>();
+                    services.AddHostedService<MeanTemperatureValues>(m => new MeanTemperatureValues(settings));
+                    services.UseOskScheduler();
                 });
     }
 }

@@ -31,7 +31,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoteTestClass", "..\Remot
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProcessMonitoringService1", "..\ProcessMonitoringService1\ProcessMonitoringService1.csproj", "{8D7BD594-C2CF-4E0C-902E-48BCC1A9A93C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineMeteoStatistics", "..\OnlineMeteoStatistics\OnlineMeteoStatistics.csproj", "{AD4C2C3E-CBF3-4AFC-A848-E0356C714C5C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineMeteoStatistics.Parser", "..\OnlineMeteoStatistics\OnlineMeteoStatistics.Parser.csproj", "{AD4C2C3E-CBF3-4AFC-A848-E0356C714C5C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrleansStatisticsKeeper.Client.Services", "..\OrleansStatisticsKeeper.Services\OrleansStatisticsKeeper.Client.Services.csproj", "{3967EA63-E7FC-4BFD-944E-E8FF400638DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineMeteoStatistics.MeanTemperatures", "..\OnlineMeteoStatistics.MeanTemperatures\OnlineMeteoStatistics.MeanTemperatures.csproj", "{8B2CCB8A-2507-408E-984C-85C843384F8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineMeteoStatistics.Commons", "..\OnlineMeteoStatistics.Commons\OnlineMeteoStatistics.Commons.csproj", "{DA98952F-A7AC-462E-AD64-C044BC6C6FA6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,6 +97,18 @@ Global
 		{AD4C2C3E-CBF3-4AFC-A848-E0356C714C5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD4C2C3E-CBF3-4AFC-A848-E0356C714C5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD4C2C3E-CBF3-4AFC-A848-E0356C714C5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3967EA63-E7FC-4BFD-944E-E8FF400638DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3967EA63-E7FC-4BFD-944E-E8FF400638DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3967EA63-E7FC-4BFD-944E-E8FF400638DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3967EA63-E7FC-4BFD-944E-E8FF400638DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B2CCB8A-2507-408E-984C-85C843384F8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B2CCB8A-2507-408E-984C-85C843384F8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B2CCB8A-2507-408E-984C-85C843384F8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B2CCB8A-2507-408E-984C-85C843384F8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA98952F-A7AC-462E-AD64-C044BC6C6FA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA98952F-A7AC-462E-AD64-C044BC6C6FA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA98952F-A7AC-462E-AD64-C044BC6C6FA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA98952F-A7AC-462E-AD64-C044BC6C6FA6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +120,8 @@ Global
 		{57880D7D-B3AC-420A-AB81-9866B78B6FA9} = {45F740A5-2F2B-4B25-82A0-138952EDE39E}
 		{8D7BD594-C2CF-4E0C-902E-48BCC1A9A93C} = {45F740A5-2F2B-4B25-82A0-138952EDE39E}
 		{AD4C2C3E-CBF3-4AFC-A848-E0356C714C5C} = {45F740A5-2F2B-4B25-82A0-138952EDE39E}
+		{8B2CCB8A-2507-408E-984C-85C843384F8C} = {45F740A5-2F2B-4B25-82A0-138952EDE39E}
+		{DA98952F-A7AC-462E-AD64-C044BC6C6FA6} = {45F740A5-2F2B-4B25-82A0-138952EDE39E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8DC083F-A616-4BAA-94B5-404574C95D39}

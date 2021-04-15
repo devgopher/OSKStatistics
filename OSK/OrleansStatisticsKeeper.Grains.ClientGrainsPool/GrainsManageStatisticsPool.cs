@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
 {
     public class GrainsManageStatisticsPool<T> : GrainsPool<IManageStatisticsGrain<T>>, IManageStatisticsGrain<T>
-    where T : DataChunk
+        where T : DataChunk
     {
         public GrainsManageStatisticsPool(StatisticsClient client, int poolSize) : base(client, poolSize)
         {
@@ -17,8 +17,21 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         public async Task<bool> Put(T obj)
             => await (await GetGrain()).Put(obj);
 
-        public async Task<bool> Put(ICollection<T> obj)
-            => await (await GetGrain()).Put(obj);
+        public async Task<bool> Put(ICollection<T> objs)
+        {
+            try
+            {
+                foreach (var obj in objs)
+                    await (await GetGrain()).Put(obj);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
 
         public async Task<long> Remove(Func<T, bool> func)
             => await (await GetGrain()).Remove(func);
@@ -26,8 +39,11 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         public async Task Remove(T obj)
             => await (await GetGrain()).Remove(obj);
 
-        public async Task<long> Remove(ICollection<T> objs)
-             => await (await GetGrain()).Remove(objs);
+        public async Task Remove(ICollection<T> objs)
+        {
+            foreach (var obj in objs)
+                await (await GetGrain()).Remove(obj);
+        }
 
         public async Task<long> Clean()
            => await (await GetGrain()).Clean();

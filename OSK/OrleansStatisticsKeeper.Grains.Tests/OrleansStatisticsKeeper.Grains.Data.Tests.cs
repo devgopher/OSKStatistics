@@ -75,7 +75,7 @@ namespace OrleansStatisticsKeeper.Grains.Tests
         {
             var insertText = text + DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
             await _addStatisticsGrain.Put(new TestModel() {Text = insertText});
-            Assert.IsTrue(await _getStatisticsGrain.Any(x => x.Text == insertText));
+            Assert.IsTrue(await _getStatisticsGrain.AnyAsync(x => x.Text == insertText));
         }
 
         [Test]

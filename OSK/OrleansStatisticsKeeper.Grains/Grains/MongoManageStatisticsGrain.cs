@@ -1,12 +1,12 @@
-﻿using Orleans;
+﻿using MongoDB.Driver;
+using Orleans;
 using OrleansStatisticsKeeper.Grains.Interfaces;
-using MongoUtils = OrleansStatisticsKeeper.Grains.Utils.MongoUtils;
+using OrleansStatisticsKeeper.Grains.Models;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using OrleansStatisticsKeeper.Grains.Models;
-using MongoDB.Driver;
 using System.Linq;
+using System.Threading.Tasks;
+using MongoUtils = OrleansStatisticsKeeper.Grains.Utils.MongoUtils;
 
 namespace OrleansStatisticsKeeper.Grains.Grains
 {
@@ -26,7 +26,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
 
                 return delResult.DeletedCount;
             }
-            catch (Exception)
+            catch
             {
                 return 0;
             }
@@ -39,20 +39,20 @@ namespace OrleansStatisticsKeeper.Grains.Grains
                 var collection = await _mongoUtils.GetCollection<T>();
                 await collection.InsertOneAsync(obj);
             }
-            catch (Exception)
+            catch
             {
                 return false;
-            }
+            } 
 
             return true;
         }
 
-        public async Task<bool> Put(ICollection<T> obj)
+        public async Task<bool> Put(ICollection<T> objs)
         {
             try
             {
                 var collection = await _mongoUtils.GetCollection<T>();
-                await collection.InsertManyAsync(obj);
+                await collection.InsertManyAsync(objs);
             }
             catch (Exception)
             {
@@ -84,24 +84,15 @@ namespace OrleansStatisticsKeeper.Grains.Grains
                 var collection = await _mongoUtils.GetCollection<T>();
                 var delResult = await collection.DeleteOneAsync(t => t.Id == obj.Id);
             }
-            catch (Exception)
+            catch
             {
             }
         }
 
-        public async Task<long> Remove(ICollection<T> objs)
+        public async Task Remove(ICollection<T> objs)
         {
-            try
-            {
-                var collection = await _mongoUtils.GetCollection<T>();
-                var delResult = await collection.DeleteManyAsync(t => objs.Contains(t));
-
-                return delResult.DeletedCount;
-            }
-            catch (Exception)
-            {
-                return 0;
-            }
+            var collection = await _mongoUtils.GetCollection<T>();
+            var delResult = await collection.DeleteManyAsync(t => objs.Contains(t));
         }
     }
 }

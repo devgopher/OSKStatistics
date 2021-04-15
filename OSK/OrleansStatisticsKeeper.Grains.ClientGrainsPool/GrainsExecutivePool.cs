@@ -1,20 +1,12 @@
-﻿using Ceras;
-using Newtonsoft.Json;
-using OrleansStatisticsKeeper.Client;
+﻿using OrleansStatisticsKeeper.Client;
 using OrleansStatisticsKeeper.Grains.Interfaces;
-using OrleansStatisticsKeeper.Grains.Models;
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
 using System.Diagnostics;
-using Utils.Client;
+using System.Linq;
 using System.Reflection;
-using OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies;
-using OrleansStatisticsKeeper.Client.GrainsContext;
+using System.Threading.Tasks;
+using Utils.Client;
 
 namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
 {
@@ -33,11 +25,9 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         public async Task<TOUT> Execute<TOUT>(string className, string funcName, params object[] args) 
             => await (await GetGrain()).Execute<TOUT>(className, funcName, args);
 
-
         public async Task<TOUT> ExecuteWithContext<TOUT>(string className, string funcName, object context, params object[] args)
             => await(await GetGrain()).ExecuteWithContext<TOUT>(className, funcName, context, args);
-
-
+        
         /// <summary>
         /// Loads a new assembly!
         /// </summary>
@@ -87,8 +77,7 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         public async Task LoadAssembly(string assemblyFullName, FileVersionInfo version, string asmPath)
         {
             var tasks = new List<Task>(_grains.Count);
-            foreach (var grain in _grains)
-                tasks.Add(grain.LoadAssembly(assemblyFullName, version, asmPath));
+            tasks.AddRange(_grains.Select(grain => grain.LoadAssembly(assemblyFullName, version, asmPath)));
 
             Task.WaitAll(tasks.ToArray());
         }
@@ -104,8 +93,7 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         {
             // TODO: change it onto direct loading into a cache!
             var tasks = new List<Task>(_grains.Count);
-            foreach (var grain in _grains)
-                tasks.Add(grain.LoadAssembly(assemblyFullName, version, asmBytes));
+            tasks.AddRange(_grains.Select(grain => grain.LoadAssembly(assemblyFullName, version, asmBytes)));
 
             Task.WaitAll(tasks.ToArray());
         }
@@ -118,7 +106,5 @@ namespace OrleansStatisticsKeeper.Grains.ClientGrainsPool
         /// <returns></returns>
         public override async Task Resize(int poolSize)
             => throw new NotSupportedException($"{nameof(Resize)} isn't supported for {nameof(GrainsExecutivePool)}!");
-
-        //    protected override async Task<int> GetGrainNumber() => await base.GetGrainNumber();
     }
 }
