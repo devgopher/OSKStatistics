@@ -15,14 +15,12 @@ namespace OnlineMeteoStatistics.MeanTemperatures.Services
     {
         private readonly GrainsGetStatisticsPool<DeviceValues> _getStatisticsGrainPool;
         private readonly GrainsManageStatisticsPool<DeviceMeanValues> _addDevicesGrainPool;
-        private readonly OnlineMeteoStatisticsSettings _settings;
-        private StatisticsClient _client;
+        private readonly StatisticsClient _client;
 
         public MeanTemperatureValues(OnlineMeteoStatisticsSettings settings) : base(settings.SchedulerSettings)
         {
             var clt = new ClientStartup();
             _client = clt.StartClientWithRetriesSync();
-            _settings = settings;
             _addDevicesGrainPool = new GrainsManageStatisticsPool<DeviceMeanValues>(_client, 10);
             _getStatisticsGrainPool = new GrainsGetStatisticsPool<DeviceValues>(_client, 10);
         }
