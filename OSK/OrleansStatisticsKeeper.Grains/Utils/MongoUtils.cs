@@ -1,8 +1,9 @@
 ﻿using MongoDB.Driver;
 using OrleansStatisticsKeeper.Grains.Database;
-using OrleansStatisticsKeeper.Grains.Models;
 using System.Linq;
 using System.Threading.Tasks;
+using OrleansStatisticsKeeper.Grains.Models;
+using OrleansStatisticsKeeper.Models;
 using OrleansStatisticsKeeper.Models.Settings;
 
 namespace OrleansStatisticsKeeper.Grains.Utils

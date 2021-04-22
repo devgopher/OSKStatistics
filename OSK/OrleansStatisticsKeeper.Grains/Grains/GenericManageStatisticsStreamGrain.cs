@@ -1,9 +1,10 @@
 ﻿using Orleans;
 using Orleans.Streams;
 using OrleansStatisticsKeeper.Grains.Interfaces;
-using OrleansStatisticsKeeper.Grains.Models;
 using OrleansStatisticsKeeper.Grains.StreamEvents;
 using System.Threading.Tasks;
+using OrleansStatisticsKeeper.Grains.Models;
+using OrleansStatisticsKeeper.Models;
 
 namespace OrleansStatisticsKeeper.Grains.Grains
 {

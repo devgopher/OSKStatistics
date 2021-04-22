@@ -1,6 +1,5 @@
 ﻿using Orleans;
 using OrleansStatisticsKeeper.Grains.Interfaces;
-using OrleansStatisticsKeeper.Grains.Models;
 using OrleansStatisticsKeeper.Grains.StreamEvents;
 using OrleansStatisticsKeeper.Grains.Utils;
 using System;
@@ -8,6 +7,8 @@ using System.Threading.Tasks;
 using MongoDB.Driver;
 using MongoUtils = OrleansStatisticsKeeper.Grains.Utils.MongoUtils;
 using System.Linq;
+using OrleansStatisticsKeeper.Grains.Models;
+using OrleansStatisticsKeeper.Models;
 
 namespace OrleansStatisticsKeeper.Grains.Grains
 {

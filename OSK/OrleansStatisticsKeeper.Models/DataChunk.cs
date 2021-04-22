@@ -1,6 +1,7 @@
 ﻿using System;
 using OrleansStatisticsKeeper.Models.Attributes;
 
+// ReSharper disable once CheckNamespace
 namespace OrleansStatisticsKeeper.Grains.Models
 {
     public class DataChunk

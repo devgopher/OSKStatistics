@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Threading;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OnlineMeteoStatistics.Commons.Settings;
@@ -23,7 +24,7 @@ namespace OnlineMeteoStatistics
                         .Build();
 
                     configuration.GetSection( nameof(OnlineMeteoStatisticsSettings)).Bind(settings);
-
+                    Thread.Sleep(10000);
                     services.AddSingleton(settings);
                     services.AddHttpClient<NarodMonPolling>();
                     services.AddHostedService<NarodMonPolling>();

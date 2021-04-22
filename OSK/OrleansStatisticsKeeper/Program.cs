@@ -12,12 +12,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.ApplicationParts;
-using Orleans.CodeGeneration;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using OrleansStatisticsKeeper.Grains.Grains;
+using OrleansStatisticsKeeper.Grains.Models;
 using OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies;
 using OrleansStatisticsKeeper.Grains.Utils;
+using OrleansStatisticsKeeper.Models;
 using OrleansStatisticsKeeper.Models.Settings;
 using OrleansStatisticsKeeper.SiloHost.Utils;
 using Utils;
@@ -54,14 +55,20 @@ namespace OrleansStatisticsKeeper
                             services.AddSingleton<IAssemblyCache, MemoryAssemblyCache>();
                             services.AddSingleton<IAssemblyMembersCache, MemoryAssemblyMembersCache>();
                         })
-                        .Configure((System.Action<SchedulingOptions>)(options => options.AllowCallChainReentrancy = false))
-                        .Configure((System.Action<ClusterOptions>)(options =>
+                        .Configure((Action<SchedulingOptions>)(options => options.AllowCallChainReentrancy = false))
+                        .Configure((Action<ClusterOptions>)(options =>
                         {
                             options.ClusterId = oskSettings.ClusterId;
                             options.ServiceId = oskSettings.ServiceId;
                         }))
-                        .Configure((System.Action<EndpointOptions>)(options => options.AdvertisedIPAddress = IpUtils.IpAddress()))
+                        .Configure((Action<EndpointOptions>)(options => options.AdvertisedIPAddress = IpUtils.IpAddress()))
                         .ConfigureApplicationParts(parts => AddParts(parts, siloSettings).WithReferences())
+                        .UseDashboard(options => {
+                            options.Host = "*";
+                            options.Port = 8080;
+                            options.HostSelf = true;
+                            options.CounterUpdateIntervalMs = 1000;
+                        })
                         .AddMemoryGrainStorage(name: "StatisticsGrainStorage")
                         .AddSimpleMessageStreamProvider("OSKProvider", c => c.OptimizeForImmutableData = true);                    
                 })
@@ -103,6 +110,7 @@ namespace OrleansStatisticsKeeper
             var results = parts
                 .AddApplicationPart(typeof(MongoManageStatisticsGrain<>).Assembly)
                 .AddApplicationPart(typeof(MongoGetStatisticsGrain<>).Assembly)
+                .AddApplicationPart(typeof(DataChunk).Assembly)
                 .WithCodeGeneration();
 
             var linkedAsms = GetLinkedAssemblies(siloSettings);

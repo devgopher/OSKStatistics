@@ -27,9 +27,9 @@ namespace OnlineMeteoStatistics.MeanTemperatures.Services
             _getStatisticsGrainPool = new GrainsGetStatisticsPool<DeviceValues>(_client, 10);
         }
 
-        public override void InnerTask(CancellationToken cancellationToken)
+        public override void InnerTask(string jobName, CancellationToken cancellationToken)
         {
-            base.InnerTask(cancellationToken);
+            base.InnerTask(jobName, cancellationToken);
             Console.WriteLine($"{nameof(MeanTemperatureValues)}.{nameof(InnerTask)}() started...");
 
             var getAllTask = _getStatisticsGrainPool.GetAllCollection();

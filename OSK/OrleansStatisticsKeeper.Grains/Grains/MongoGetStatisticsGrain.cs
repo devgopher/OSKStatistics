@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Orleans;
 using OrleansStatisticsKeeper.Grains.Interfaces;
 using OrleansStatisticsKeeper.Grains.Models;
+using OrleansStatisticsKeeper.Models;
 using MongoUtils = OrleansStatisticsKeeper.Grains.Utils.MongoUtils;
 
 namespace OrleansStatisticsKeeper.Grains.Grains

@@ -5,13 +5,14 @@ using OnlineMeteoStatistics.Commons.Settings;
 using OnlineMeteoStatistics.Models;
 using OrleansStatisticsKeeper.Client;
 using OrleansStatisticsKeeper.Grains.ClientGrainsPool;
-using OrleansStatisticsKeeper.Grains.Models;
 using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using OnlineMeteoStatistics.Commons.Models;
+using OrleansStatisticsKeeper.Grains.Models;
+using OrleansStatisticsKeeper.Models;
 using Exception = System.Exception;
 
 namespace OnlineMeteoStatistics.MeteoHttpClient

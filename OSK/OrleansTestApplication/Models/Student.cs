@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using OrleansStatisticsKeeper.Grains.Models;
+using OrleansStatisticsKeeper.Models;
 
 namespace OrleansTestApplication.Models
 {

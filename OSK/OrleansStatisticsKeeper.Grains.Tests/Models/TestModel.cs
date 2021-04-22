@@ -1,4 +1,5 @@
 ﻿using OrleansStatisticsKeeper.Grains.Models;
+using OrleansStatisticsKeeper.Models;
 
 namespace OrleansStatisticsKeeper.Grains.Tests.Models
 {

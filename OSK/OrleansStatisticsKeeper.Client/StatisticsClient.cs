@@ -1,8 +1,9 @@
 ﻿using Orleans;
 using OrleansStatisticsKeeper.Grains.Interfaces;
-using OrleansStatisticsKeeper.Grains.Models;
 using System;
 using AsyncLogging;
+using OrleansStatisticsKeeper.Grains.Models;
+using OrleansStatisticsKeeper.Models;
 
 namespace OrleansStatisticsKeeper.Client
 {

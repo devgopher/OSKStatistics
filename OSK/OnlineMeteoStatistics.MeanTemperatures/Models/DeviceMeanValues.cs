@@ -1,5 +1,6 @@
-﻿using OrleansStatisticsKeeper.Grains.Models;
-using System;
+﻿using System;
+using OrleansStatisticsKeeper.Grains.Models;
+using OrleansStatisticsKeeper.Models;
 
 namespace OnlineMeteoStatistics.Models
 {

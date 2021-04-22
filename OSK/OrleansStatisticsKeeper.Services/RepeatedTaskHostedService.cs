@@ -19,11 +19,16 @@ namespace OrleansStatisticsKeeper.Client.Services
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            RecurringJob.AddOrUpdate("cronWork",
-                 () => InnerTask(cancellationToken),
-                _settings.Schedule);
+            foreach (var sched in  _settings.Schedules)
+            {
+                var cronWorkName = $"cronWork_{sched.GetHashCode()}";
+                RecurringJob.AddOrUpdate(cronWorkName,
+                    () => InnerTask(cronWorkName, cancellationToken),
+                    sched);
 
-            RecurringJob.Trigger("cronWork");
+                RecurringJob.Trigger(cronWorkName);
+            }
+ 
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
@@ -31,10 +36,10 @@ namespace OrleansStatisticsKeeper.Client.Services
 
         }
 
-        public virtual void InnerTask(CancellationToken cancellationToken)
+        public virtual void InnerTask(string jobName, CancellationToken cancellationToken)
         {
             var job = JobStorage.Current.GetConnection().GetRecurringJobs()
-                .FirstOrDefault(p => p.Id == "cronWork");
+                .FirstOrDefault(p => p.Id == jobName);
             if (job == null) 
                 return;
             job.LastExecution ??= DateTime.UtcNow;
