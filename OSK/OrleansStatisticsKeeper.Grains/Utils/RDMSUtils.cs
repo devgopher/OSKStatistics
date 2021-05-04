@@ -1,10 +1,10 @@
 ﻿using DapperExtensions;
-using OrleansStatisticsKeeper.Grains.Database;
 using OrleansStatisticsKeeper.Models.Settings;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using OrleansStatisticsKeeper.Grains.Models;
 using OrleansStatisticsKeeper.Models;
+using OrleansStatisticsKeeper.Grains.Database;
 
 namespace OrleansStatisticsKeeper.Grains.Utils
 {

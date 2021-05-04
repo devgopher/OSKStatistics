@@ -1,28 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AsyncLogging;
+﻿using AsyncLogging;
 using EntityFrameworkCore.BootKit;
-using MongoDB.Driver;
 using Newtonsoft.Json;
 using Orleans;
 using OrleansStatisticsKeeper.Grains.Interfaces;
 using OrleansStatisticsKeeper.Grains.Models;
-using OrleansStatisticsKeeper.Models;
-using MongoUtils = OrleansStatisticsKeeper.Grains.Utils.MongoUtils;
+using OrleansStatisticsKeeper.Grains.Tarantool.Utils;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace OrleansStatisticsKeeper.Grains.Grains
+namespace OrleansStatisticsKeeper.Grains.MongoBased.Grains
 {
-    public class MongoGetStatisticsGrain<T> : Grain, IGetStatisticsGrain<T>
+    public class TarantoolGetStatisticsGrain<T> : Grain, IGetStatisticsGrain<T>
         where T : DataChunk
     {
-        private readonly MongoUtils _mongoUtils;
+        private readonly TarantoolUtils _tarantoolUtils;
         private readonly IAsyncLogger _logger;
 
-        public MongoGetStatisticsGrain(MongoUtils mongoUtils, IAsyncLogger logger)
+        public TarantoolGetStatisticsGrain(TarantoolUtils mongoUtils, IAsyncLogger logger)
         {
-            _mongoUtils = mongoUtils;
+            _tarantoolUtils = mongoUtils;
             _logger = logger;
         }
 
@@ -30,11 +27,11 @@ namespace OrleansStatisticsKeeper.Grains.Grains
         {
             _logger.Info($"{GetType().Name}.{nameof(GetAllSerialized)}() started...");
 
-            var collection = await _mongoUtils.GetCollection<T>();
-            if (cancellationToken == null) 
-                return JsonConvert.SerializeObject(await collection.AsQueryable().ToListAsync());
+            var collection = await _tarantoolUtils.GetIndex<T>();
+            if (cancellationToken == null)
+                return JsonConvert.SerializeObject(collection);
 
-            var serialized = JsonConvert.SerializeObject(await collection.AsQueryable().ToListAsync(cancellationToken.CancellationToken));
+            var serialized = JsonConvert.SerializeObject(collection);
 
             return serialized;
         }
@@ -43,7 +40,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
         {
             _logger.Info($"{GetType().Name}.{nameof(GetFirst)}() started...");
 
-            var collection = await _mongoUtils.GetCollection<T>();
+            var collection = await _tarantoolUtils.GetIndex<T>();
             return collection.FirstOrDefault();
         }
 
@@ -51,7 +48,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
         {
             _logger.Info($"{GetType().Name}.{nameof(GetLast)}() started...");
 
-            var collection = await _mongoUtils.GetCollection<T>();
+            var collection = await _tarantoolUtils.GetIndex<T>();
             return collection.AsQueryable().TakeLast(1).FirstOrDefault();
         }
 
@@ -59,7 +56,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
         {
             _logger.Info($"{GetType().Name}.{nameof(Any)}() started...");
 
-            var collection = await _mongoUtils.GetCollection<T>();
+            var collection = await _tarantoolUtils.GetIndex<T>();
             return collection.AsQueryable().Any();
         }
 

@@ -11,7 +11,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Utils.Client;
 
-namespace OrleansStatisticsKeeper.Grains.Grains
+namespace OrleansStatisticsKeeper.Grains
 {
     /// <summary>
     /// This type of grain is intended for a remote method execution

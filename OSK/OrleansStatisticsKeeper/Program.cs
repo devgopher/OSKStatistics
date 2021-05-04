@@ -14,8 +14,9 @@ using Orleans;
 using Orleans.ApplicationParts;
 using Orleans.Configuration;
 using Orleans.Hosting;
-using OrleansStatisticsKeeper.Grains.Grains;
+using OrleansStatisticsKeeper.Grains;
 using OrleansStatisticsKeeper.Grains.Models;
+using OrleansStatisticsKeeper.Grains.MongoBased.Extensions;
 using OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies;
 using OrleansStatisticsKeeper.Grains.Utils;
 using OrleansStatisticsKeeper.Models;
@@ -48,7 +49,7 @@ namespace OrleansStatisticsKeeper
                     builder.UseLocalhostClustering()
                         .ConfigureServices(services =>
                         {
-                            services.AddSingleton<MongoUtils>();
+                            services.AddMongoUtils();
                             services.AddSingleton(oskSettings);
                             services.AddSingleton(siloSettings);
                             services.AddScoped<IAsyncLogger, NLogLogger>();
@@ -107,9 +108,7 @@ namespace OrleansStatisticsKeeper
 
         private static IApplicationPartManagerWithAssemblies AddParts(IApplicationPartManager parts, SiloSettings siloSettings)
         {
-            var results = parts
-                .AddApplicationPart(typeof(MongoManageStatisticsGrain<>).Assembly)
-                .AddApplicationPart(typeof(MongoGetStatisticsGrain<>).Assembly)
+            var results = parts.AddMongoGrains()
                 .AddApplicationPart(typeof(DataChunk).Assembly)
                 .WithCodeGeneration();
 

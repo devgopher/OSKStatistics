@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using OrleansStatisticsKeeper.Grains.Models;
 using OrleansStatisticsKeeper.Models;
 
-namespace OrleansStatisticsKeeper.Grains.Grains
+namespace OrleansStatisticsKeeper.Grains
 {
     public abstract class GenericManageStatisticsStreamGrain<T> : Grain, IManageStatisticsStreamGrain<T>
         where T : DataChunk

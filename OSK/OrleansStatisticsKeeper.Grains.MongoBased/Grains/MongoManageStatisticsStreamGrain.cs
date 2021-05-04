@@ -10,7 +10,7 @@ using System.Linq;
 using OrleansStatisticsKeeper.Grains.Models;
 using OrleansStatisticsKeeper.Models;
 
-namespace OrleansStatisticsKeeper.Grains.Grains
+namespace OrleansStatisticsKeeper.Grains.MongoBased.Grains
 {
     [ImplicitStreamSubscription("OSKNAMESPACE")]
     public class MongoManageStatisticsStreamGrain<T> : GenericManageStatisticsStreamGrain<T>, IManageStatisticsStreamGrain<T>
@@ -34,7 +34,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
 
         public override Task ProcessPutRecordsEvent(PutRecordsEvent<T> @event)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override async Task ProcessRemoveRecordsByConditionEvent(RemoveRecordsByConditionEvent<T> @event)

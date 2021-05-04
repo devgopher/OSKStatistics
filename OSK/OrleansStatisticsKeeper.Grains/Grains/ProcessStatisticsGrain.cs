@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using OrleansStatisticsKeeper.Grains.Models;
 using OrleansStatisticsKeeper.Models;
 
-namespace OrleansStatisticsKeeper.Grains.Grains
+namespace OrleansStatisticsKeeper.Grains
 {
     public class ProcessStatisticsGrain<T> : Grain, IProcessStatisticsGrain<T>
         where T : DataChunk

@@ -1,5 +1,4 @@
-﻿using MongoDB.Driver;
-using Orleans;
+﻿using Orleans;
 using OrleansStatisticsKeeper.Grains.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -7,22 +6,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using OrleansStatisticsKeeper.Grains.Models;
 using OrleansStatisticsKeeper.Models;
-using MongoUtils = OrleansStatisticsKeeper.Grains.Utils.MongoUtils;
+using OrleansStatisticsKeeper.Grains.Tarantool.Utils;
 
-namespace OrleansStatisticsKeeper.Grains.Grains
+namespace OrleansStatisticsKeeper.Grains.MongoBased.Grains
 {
-    public class MongoManageStatisticsGrain<T> : Grain, IManageStatisticsGrain<T>
+    public class TarantoolManageStatisticsGrain<T> : Grain, IManageStatisticsGrain<T>
         where T : DataChunk
     {
-        private readonly MongoUtils _mongoUtils;
+        private readonly TarantoolUtils _tarantoolUtils;
 
-        public MongoManageStatisticsGrain(MongoUtils mongoUtils) => _mongoUtils = mongoUtils;
+        public TarantoolManageStatisticsGrain(TarantoolUtils mongoUtils) => _tarantoolUtils = mongoUtils;
 
         public async Task<long> Clean()
         {
             try
             {
-                var collection = await _mongoUtils.GetCollection<T>();
+                var collection = await _tarantoolUtils.GetIndex<T>();
                 var delResult = await collection.DeleteManyAsync(d => true);
 
                 return delResult.DeletedCount;
@@ -37,13 +36,12 @@ namespace OrleansStatisticsKeeper.Grains.Grains
         {
             try
             {
-                var collection = await _mongoUtils.GetCollection<T>();
-                await collection.InsertOneAsync(obj);
+                await _tarantoolUtils.Upsert(obj);
             }
             catch
             {
                 return false;
-            } 
+            }
 
             return true;
         }
@@ -52,8 +50,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
         {
             try
             {
-                var collection = await _mongoUtils.GetCollection<T>();
-                await collection.InsertManyAsync(objs);
+                await _tarantoolUtils.Upsert(objs);
             }
             catch (Exception)
             {
@@ -67,7 +64,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
         {
             try
             {
-                var collection = await _mongoUtils.GetCollection<T>();
+                var collection = await _tarantoolUtils.GetIndex<T>();
                 var delResult = await collection.DeleteManyAsync(f => func(f));
 
                 return delResult.DeletedCount;
@@ -82,7 +79,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
         {
             try
             {
-                var collection = await _mongoUtils.GetCollection<T>();
+                var collection = await _tarantoolUtils.GetIndex<T>();
                 var delResult = await collection.DeleteOneAsync(t => t.Id == obj.Id);
             }
             catch
@@ -92,7 +89,7 @@ namespace OrleansStatisticsKeeper.Grains.Grains
 
         public async Task Remove(ICollection<T> objs)
         {
-            var collection = await _mongoUtils.GetCollection<T>();
+            var collection = await _tarantoolUtils.GetIndex<T>();
             var delResult = await collection.DeleteManyAsync(t => objs.Contains(t));
         }
     }

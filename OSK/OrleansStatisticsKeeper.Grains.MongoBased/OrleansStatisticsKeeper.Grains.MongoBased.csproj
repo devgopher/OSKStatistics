@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="3.4.2" />
+    <PackageReference Include="MongoDB.Driver" Version="2.12.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OrleansStatisticsKeeper.Grains\OrleansStatisticsKeeper.Grains.csproj" />
+    <ProjectReference Include="..\OrleansStatisticsKeeper.Models\OrleansStatisticsKeeper.Models.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
-using OrleansStatisticsKeeper.Grains.Grains;
 using OrleansStatisticsKeeper.Grains.Interfaces;
 using OrleansStatisticsKeeper.Grains.Tests.Models;
 using OrleansStatisticsKeeper.Grains.Utils;
@@ -16,6 +15,7 @@ using System.IO;
 using OrleansStatisticsKeeper.Grains.RemoteExecutionAssemblies;
 using Utils.Client;
 using OrleansStatisticsKeeper.Client.GrainsContext;
+using OrleansStatisticsKeeper.Grains.MongoBased.Grains;
 
 namespace OrleansStatisticsKeeper.Grains.Tests
 {

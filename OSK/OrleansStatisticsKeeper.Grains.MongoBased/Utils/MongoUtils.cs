@@ -1,10 +1,10 @@
 ﻿using MongoDB.Driver;
-using OrleansStatisticsKeeper.Grains.Database;
 using System.Linq;
 using System.Threading.Tasks;
 using OrleansStatisticsKeeper.Grains.Models;
 using OrleansStatisticsKeeper.Models;
 using OrleansStatisticsKeeper.Models.Settings;
+using OrleansStatisticsKeeper.Grains.MongoBased.Database;
 
 namespace OrleansStatisticsKeeper.Grains.Utils
 {

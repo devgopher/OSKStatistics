@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OrleansStatisticsKeeper.Client\OrleansStatisticsKeeper.Client.csproj" />
+    <ProjectReference Include="..\OrleansStatisticsKeeper.Grains.MongoBased\OrleansStatisticsKeeper.Grains.MongoBased.csproj" />
     <ProjectReference Include="..\OrleansStatisticsKeeper.Grains\OrleansStatisticsKeeper.Grains.csproj" />
     <ProjectReference Include="..\Utils\Utils.csproj" />
   </ItemGroup>
